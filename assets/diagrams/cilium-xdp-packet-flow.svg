@@ -1,0 +1,76 @@
+<svg width="600" height="800" viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text { font-family: sans-serif; fill: #263238; }
+      .bg { fill: #ffffff; }
+      
+      .box { fill: #ffffff; stroke: #455a64; stroke-width: 1.5; rx: 4; }
+      .xdp-box { fill: #e3f2fd; stroke: #1565c0; stroke-width: 2.0; rx: 4; }
+      .stack-box { fill: #fff3e0; stroke: #e65100; stroke-width: 2.0; rx: 4; }
+      .app-box { fill: #ffffff; stroke: #455a64; stroke-width: 1.5; rx: 4; }
+      
+      .arrow { stroke: #455a64; stroke-width: 1.5; marker-end: url(#arrow-head); fill: none; }
+      .arrow-fast { stroke: #1565c0; stroke-width: 2.0; marker-end: url(#arrow-head-blue); fill: none; }
+      
+      .label-title { font-size: 20px; font-weight: bold; text-anchor: middle; }
+      .label { font-size: 14px; font-weight: 600; text-anchor: middle; }
+      .label-sub { font-size: 12px; fill: #546e7a; text-anchor: middle; }
+      .annotation { font-size: 12px; fill: #546e7a; font-style: italic; }
+    </style>
+    <marker id="arrow-head" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#455a64" />
+    </marker>
+    <marker id="arrow-head-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1565c0" />
+    </marker>
+  </defs>
+
+  <rect width="100%" height="100%" class="bg" />
+  <text x="300" y="40" class="label-title">Packet Processing with eBPF and XDP</text>
+
+  <!-- 1. NIC -->
+  <rect x="200" y="80" width="200" height="50" class="box" />
+  <text x="300" y="110" class="label">NIC (Hardware)</text>
+
+  <line x1="300" y1="130" x2="300" y2="170" class="arrow" />
+
+  <!-- 2. XDP Hook -->
+  <rect x="200" y="170" width="200" height="60" class="xdp-box" />
+  <text x="300" y="200" class="label" fill="#0d47a1">eBPF XDP Hook</text>
+  <text x="300" y="220" class="label-sub" fill="#1565c0">(Early Processing)</text>
+  
+  <!-- Annotation: Runs at driver level -->
+  <text x="190" y="205" class="annotation" text-anchor="end">Runs at driver level →</text>
+
+  <!-- Fast Path Arrow (Right and Bypass) -->
+  <path d="M400 200 L500 200 L500 300" class="arrow-fast" />
+  <text x="510" y="250" class="label" fill="#1565c0" text-anchor="start">Fast Path</text>
+  <text x="510" y="265" class="label-sub" fill="#1565c0" text-anchor="start">Drop / Redirect</text>
+
+  <!-- Vertical Continue -->
+  <line x1="300" y1="230" x2="300" y2="290" class="arrow" />
+
+  <!-- 3. Traffic Control -->
+  <rect x="200" y="290" width="200" height="50" class="box" />
+  <text x="300" y="320" class="label">Traffic Control (TC)</text>
+
+  <line x1="300" y1="340" x2="300" y2="400" class="arrow" />
+
+  <!-- 4. Linux Network Stack -->
+  <rect x="180" y="400" width="240" height="120" class="stack-box" />
+  <text x="300" y="430" class="label" fill="#e65100">Linux Network Stack</text>
+  
+  <text x="300" y="460" class="label-sub" fill="#e65100">iptables / conntrack</text>
+  <text x="300" y="480" class="label-sub" fill="#e65100">routing / IP stack</text>
+  <text x="300" y="505" class="label-sub" font-weight="bold" fill="#bf360c">(Slow Path)</text>
+  
+  <!-- Annotation: General-purpose networking -->
+  <text x="430" y="460" class="annotation" text-anchor="start">← General-purpose networking</text>
+
+  <line x1="300" y1="520" x2="300" y2="600" class="arrow" />
+
+  <!-- 5. Application -->
+  <rect x="200" y="600" width="200" height="50" class="app-box" />
+  <text x="300" y="630" class="label">Application / Pod</text>
+
+</svg>

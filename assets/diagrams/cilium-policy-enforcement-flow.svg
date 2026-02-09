@@ -1,0 +1,95 @@
+<svg width="600" height="700" viewBox="0 0 600 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text { font-family: sans-serif; fill: #333; }
+      .bg { fill: #ffffff; }
+      .kernel-box { fill: #f9f9f9; stroke: #999; stroke-width: 1.5; stroke-dasharray: 6 4; rx: 4; }
+      
+      .step-box { fill: #e3f2fd; stroke: #546e7a; stroke-width: 1.5; rx: 4; }
+      .decision-box { fill: #fff3e0; stroke: #fb8c00; stroke-width: 1.5; }
+      .drop-box { fill: #ffebee; stroke: #c62828; stroke-width: 1.5; rx: 4; }
+      .forward-box { fill: #e8f5e9; stroke: #2e7d32; stroke-width: 1.5; rx: 4; }
+      .callout-box { fill: #ffffff; stroke: #b0bec5; stroke-width: 1; rx: 4; }
+      
+      .arrow { stroke: #37474f; stroke-width: 1.5; marker-end: url(#arrow-head); }
+      .arrow-red { stroke: #c62828; stroke-width: 1.5; marker-end: url(#arrow-head-red); }
+      .arrow-green { stroke: #2e7d32; stroke-width: 1.5; marker-end: url(#arrow-head-green); }
+      
+      .label-title { font-size: 18px; font-weight: bold; text-anchor: middle; }
+      .label-kernel { font-size: 14px; fill: #546e7a; font-weight: bold; text-anchor: middle; }
+      .label-step { font-size: 13px; text-anchor: middle; dominant-baseline: middle; }
+      .label-small { font-size: 11px; fill: #546e7a; text-anchor: middle; }
+      .check-item { font-size: 12px; fill: #37474f; }
+    </style>
+    <marker id="arrow-head" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#37474f" />
+    </marker>
+    <marker id="arrow-head-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c62828" />
+    </marker>
+    <marker id="arrow-head-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2e7d32" />
+    </marker>
+  </defs>
+
+  <rect width="100%" height="100%" class="bg" />
+  <text x="300" y="40" class="label-title">Cilium Policy Enforcement – Kernel Datapath</text>
+
+  <!-- Kernel Space Container -->
+  <rect x="100" y="70" width="400" height="580" class="kernel-box" />
+  <text x="300" y="100" class="label-kernel">Kernel Space (eBPF)</text>
+
+  <!-- Step 1: Packet Arrives -->
+  <rect x="220" y="130" width="160" height="50" class="step-box" />
+  <text x="300" y="155" class="label-step">1. Packet Arrives</text>
+
+  <line x1="300" y1="180" x2="300" y2="210" class="arrow" />
+
+  <!-- Step 2: Source ID -->
+  <rect x="220" y="210" width="160" height="50" class="step-box" />
+  <text x="300" y="235" class="label-step">2. Extract Src ID</text>
+
+  <line x1="300" y1="260" x2="300" y2="290" class="arrow" />
+
+  <!-- Step 3: Dest ID -->
+  <rect x="220" y="290" width="160" height="50" class="step-box" />
+  <text x="300" y="315" class="label-step">3. Extract Dst ID</text>
+
+  <line x1="300" y1="340" x2="300" y2="370" class="arrow" />
+
+  <!-- Step 4: Policy Map -->
+  <rect x="220" y="370" width="160" height="50" class="step-box" />
+  <text x="300" y="395" class="label-step">4. Policy Map Lookup</text>
+  <text x="300" y="435" class="label-small">(O(1) Hash Lookup)</text>
+
+  <line x1="300" y1="420" x2="300" y2="460" class="arrow" />
+
+  <!-- Step 5: Decision - Diamond -->
+  <polygon points="300,460 360,510 300,560 240,510" class="decision-box" />
+  <text x="300" y="510" class="label-step" style="font-size:12px; font-weight:bold;">Allowed?</text>
+
+  <!-- Path: NO (Left) -->
+  <line x1="240" y1="510" x2="190" y2="510" class="arrow-red" />
+  <text x="215" y="500" class="label-small" fill="#c62828" style="font-weight:bold;">NO</text>
+  
+  <rect x="110" y="485" width="80" height="50" class="drop-box" />
+  <text x="150" y="510" class="label-step" fill="#c62828" style="font-weight:bold;">DROP</text>
+
+  <!-- Path: YES (Right) -->
+  <line x1="360" y1="510" x2="410" y2="510" class="arrow-green" />
+  <text x="385" y="500" class="label-small" fill="#2e7d32" style="font-weight:bold;">YES</text>
+
+  <rect x="410" y="485" width="120" height="50" class="forward-box" />
+  <text x="470" y="510" class="label-step" fill="#2e7d32" style="font-weight:bold; font-size: 11px;">FORWARD</text>
+  <text x="470" y="525" class="label-small" fill="#2e7d32" style="font-size: 9px;">TO POD</text>
+
+  <!-- Callout (Right Side) -->
+  <rect x="380" y="200" width="160" height="80" class="callout-box" />
+  <text x="390" y="225" class="check-item">✓ No iptables traversal</text>
+  <text x="390" y="245" class="check-item">✓ No userspace proxy</text>
+  <text x="390" y="265" class="check-item">✓ Kernel-speed</text>
+
+  <!-- Dotted line connecting callout to Kernel box edge -->
+  <line x1="380" y1="240" x2="350" y2="240" stroke="#b0bec5" stroke-width="1" stroke-dasharray="2 2" />
+
+</svg>

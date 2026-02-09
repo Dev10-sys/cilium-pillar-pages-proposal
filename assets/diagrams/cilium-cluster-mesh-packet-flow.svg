@@ -1,0 +1,109 @@
+<svg width="950" height="600" viewBox="0 0 950 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap');
+      text { font-family: 'Inter', sans-serif, system-ui; fill: #263238; }
+      .bg { fill: #ffffff; }
+      
+      /* Regions */
+      .cluster-boundary { fill: #fbfbfb; stroke: #9575cd; stroke-width: 1.5; stroke-dasharray: 6 4; rx: 8; }
+      .datapath-box { fill: #e8f5e9; stroke: #2e7d32; stroke-width: 1.5; rx: 6; }
+      .agent-box { fill: #e3f2fd; stroke: #1565c0; stroke-width: 1.5; rx: 4; }
+      .pod-box { fill: #ffffff; stroke: #455a64; stroke-width: 1.5; rx: 4; }
+      .encap-box { fill: #f1f8e9; stroke: #388e3c; stroke-width: 1.5; rx: 6; }
+      
+      /* Connectors */
+      .datapath-arrow { stroke: #37474f; stroke-width: 2.5; marker-end: url(#arrow-head-dark); }
+      .control-arrow { stroke: #1976d2; stroke-width: 1.5; stroke-dasharray: 5 3; marker-end: url(#arrow-head-blue); marker-start: url(#arrow-head-blue); }
+      
+      /* Text Styles */
+      .title { font-size: 18px; font-weight: 600; text-anchor: middle; }
+      .cluster-label { font-size: 16px; font-weight: 600; fill: #673ab7; }
+      .comp-label { font-size: 13px; font-weight: 600; text-anchor: middle; }
+      .sub-label { font-size: 11px; fill: #546e7a; text-anchor: middle; }
+      .annotation { font-size: 12px; font-weight: 600; fill: #455a64; font-style: italic; }
+      .footer-text { font-size: 12px; fill: #78909c; }
+    </style>
+    
+    <marker id="arrow-head-dark" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#37474f" />
+    </marker>
+    <marker id="arrow-head-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg" />
+  
+  <text x="475" y="40" class="title">Cluster Mesh Packet Flow (Cross-Cluster Pod Communication)</text>
+
+  <!-- CLUSTER A (Left) -->
+  <rect x="50" y="80" width="350" height="420" class="cluster-boundary" />
+  <text x="70" y="110" class="cluster-label">Cluster A</text>
+  
+  <rect x="100" y="120" width="160" height="40" class="agent-box" />
+  <text x="180" y="145" class="comp-label">Cilium Agent (Cluster A)</text>
+
+  <rect x="150" y="200" width="150" height="50" class="pod-box" />
+  <text x="225" y="230" class="comp-label">Pod: frontend</text>
+
+  <rect x="100" y="300" width="250" height="120" class="datapath-box" />
+  <text x="225" y="325" class="comp-label" fill="#1b5e20">eBPF Datapath (Node A)</text>
+  <text x="225" y="350" class="sub-label">• Identity Lookup</text>
+  <text x="225" y="370" class="sub-label">• Policy Check</text>
+  <text x="225" y="390" class="sub-label">• Service Resolution</text>
+
+  <!-- Pod to Datapath Arrow -->
+  <line x1="225" y1="250" x2="225" y2="300" class="datapath-arrow" />
+
+  <!-- Annotation Left -->
+  <text x="60" y="480" class="annotation" text-anchor="start">"No shared etcd"</text>
+
+  <!-- CLUSTER B (Right) -->
+  <rect x="550" y="80" width="350" height="420" class="cluster-boundary" />
+  <text x="570" y="110" class="cluster-label">Cluster B</text>
+
+  <rect x="690" y="120" width="160" height="40" class="agent-box" />
+  <text x="770" y="145" class="comp-label">Cilium Agent (Cluster B)</text>
+
+  <rect x="650" y="200" width="150" height="50" class="pod-box" />
+  <text x="725" y="230" class="comp-label">Pod: backend</text>
+
+  <rect x="600" y="300" width="250" height="120" class="datapath-box" />
+  <text x="725" y="325" class="comp-label" fill="#1b5e20">eBPF Datapath (Node B)</text>
+  <text x="725" y="350" class="sub-label">• Identity Match</text>
+  <text x="725" y="370" class="sub-label">• Policy Re-evaluation</text>
+  <text x="725" y="390" class="sub-label">• Decapsulation</text>
+
+  <!-- Datapath to Pod Arrow -->
+  <line x1="725" y1="300" x2="725" y2="250" class="datapath-arrow" />
+
+  <!-- Annotation Right -->
+  <text x="890" y="480" class="annotation" text-anchor="end">"No centralized gateway"</text>
+
+  <!-- INTER-CLUSTER TRANSPORT (Middle) -->
+  <rect x="410" y="315" width="130" height="90" class="encap-box" />
+  <text x="475" y="340" class="comp-label" fill="#2e7d32">Encapsulation Layer</text>
+  <text x="475" y="360" class="sub-label">(VXLAN / Geneve)</text>
+  <text x="475" y="375" class="sub-label">Identity preserved</text>
+  <text x="475" y="390" class="sub-label">WireGuard / IPsec</text>
+
+  <!-- Data Flow Arrows -->
+  <line x1="350" y1="360" x2="410" y2="360" class="datapath-arrow" />
+  <line x1="540" y1="360" x2="600" y2="360" class="datapath-arrow" />
+
+  <!-- CONTROL PLANE SYNC (Top) -->
+  <line x1="260" y1="140" x2="690" y2="140" class="control-arrow" />
+  <rect x="375" y="125" width="200" height="30" fill="white" stroke="#1565c0" stroke-width="1.5" rx="4" />
+  <text x="475" y="145" class="comp-label" fill="#1565c0">Identity + Service Sync (KVStore)</text>
+
+  <!-- Bottom Annotation -->
+  <text x="475" y="520" class="annotation" text-anchor="middle">"Datapath continues during control-plane disruption"</text>
+
+  <!-- FOOTER -->
+  <line x1="50" y1="550" x2="900" y2="550" stroke="#cfd8dc" stroke-width="1" />
+  <text x="50" y="575" class="footer-text" text-anchor="start">Same NetworkPolicy works across clusters</text>
+  <text x="900" y="575" class="footer-text" text-anchor="end">Topology-aware routing prefers local endpoints</text>
+
+</svg>

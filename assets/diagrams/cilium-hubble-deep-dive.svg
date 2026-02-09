@@ -1,0 +1,165 @@
+<svg width="1000" height="850" viewBox="0 0 1000 850" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&amp;display=swap');
+      text { font-family: 'Inter', sans-serif, system-ui; fill: #263238; }
+      .mono { font-family: 'JetBrains Mono', monospace; }
+      .bg { fill: #ffffff; }
+      
+      /* Regions */
+      .panel-border { fill: #ffffff; stroke: #cfd8dc; stroke-width: 1; rx: 8; }
+      .kernel-box { fill: #f5f5f5; stroke: #455a64; stroke-width: 1.5; rx: 6; }
+      .userspace-box { fill: #f3e5f5; stroke: #7b1fa2; stroke-width: 1.5; rx: 6; }
+      
+      /* Components */
+      .ebpf-box { fill: #e3f2fd; stroke: #1565c0; stroke-width: 2.0; rx: 4; }
+      .hubble-box { fill: #ffffff; stroke: #7b1fa2; stroke-width: 2.0; rx: 4; }
+      .ring-buffer { fill: #90a4ae; stroke: #455a64; stroke-width: 1.5; rx: 15; }
+      .consumer-box { fill: #fafafa; stroke: #cfd8dc; stroke-width: 1.5; rx: 4; }
+      
+      /* Arrows */
+      .arrow-green { stroke: #2e7d32; stroke-width: 2.5; fill: none; marker-end: url(#arrow-head-green); }
+      .arrow-red { stroke: #c62828; stroke-width: 2.5; fill: none; marker-end: url(#arrow-head-red); }
+      .arrow-blue { stroke: #1565c0; stroke-width: 2; fill: none; marker-end: url(#arrow-head-blue); }
+      .arrow-purple { stroke: #7b1fa2; stroke-width: 2; fill: none; marker-end: url(#arrow-head-purple); }
+      .arrow-std { stroke: #37474f; stroke-width: 1.5; fill: none; marker-end: url(#arrow-head-dark); }
+      
+      /* Text */
+      .title-main { font-size: 22px; font-weight: 600; text-anchor: middle; }
+      .title-panel { font-size: 16px; font-weight: 600; text-anchor: middle; }
+      .label-bold { font-size: 13px; font-weight: 600; text-anchor: middle; }
+      .label-reg { font-size: 11px; text-anchor: middle; }
+      .label-small { font-size: 10px; fill: #546e7a; text-anchor: middle; }
+      .annotation { font-size: 12px; font-weight: 600; fill: #455a64; font-style: italic; }
+    </style>
+    
+    <marker id="arrow-head-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2e7d32" />
+    </marker>
+    <marker id="arrow-head-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c62828" />
+    </marker>
+    <marker id="arrow-head-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1565c0" />
+    </marker>
+    <marker id="arrow-head-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7b1fa2" />
+    </marker>
+    <marker id="arrow-head-dark" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#37474f" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg" />
+  
+  <text x="500" y="40" class="title-main">Observability in Cilium: Kernel-Level Visibility with Hubble</text>
+
+  <!-- LEFT PANEL: KERNEL DATAPATH -->
+  <rect x="50" y="80" width="440" height="500" class="panel-border" />
+  <text x="270" y="110" class="title-panel" fill="#455a64">Linux Kernel Datapath</text>
+  
+  <rect x="80" y="130" width="380" height="430" class="kernel-box" />
+  
+  <!-- NIC & Hooks -->
+  <rect x="180" y="150" width="180" height="30" fill="#fff" stroke="#37474f" stroke-width="1.5" rx="4" />
+  <text x="270" y="170" class="label-bold">NIC</text>
+  
+  <rect x="180" y="200" width="180" height="30" fill="#cfd8dc" stroke="#37474f" stroke-width="1" rx="4" />
+  <text x="270" y="220" class="label-bold">XDP / TC Hook</text>
+
+  <!-- eBPF Program -->
+  <rect x="150" y="260" width="240" height="100" class="ebpf-box" />
+  <text x="270" y="285" class="label-bold" fill="#0d47a1">eBPF Program (Policy + LB)</text>
+  <text x="270" y="305" class="label-small" style="fill:#0d47a1;">Inspecting Pakets | Finding Identity</text>
+
+  <!-- eBPF Maps -->
+  <rect x="190" y="320" width="160" height="30" fill="#fff" stroke="#1565c0" stroke-dasharray="4 2" rx="4" />
+  <text x="270" y="340" class="label-small" style="fill:#1565c0; font-weight:600;">eBPF Maps</text>
+
+  <!-- Main Flow Arrows -->
+  <path d="M220 180 L220 200" class="arrow-std" />
+  <path d="M220 230 L220 260" class="arrow-std" />
+  
+  <!-- Policy Decision -->
+  <path d="M200 360 L140 450" class="arrow-green" />
+  <text x="140" y="470" class="label-bold" fill="#2e7d32">ALLOW</text>
+  
+  <path d="M340 360 L400 450" class="arrow-red" />
+  <text x="400" y="470" class="label-bold" fill="#c62828">DENY</text>
+
+  <!-- Annotations Near Kernel -->
+  <text x="90" y="520" class="label-small" style="text-anchor: start;">Identity-aware (Pod / Namespace / Service)</text>
+  <text x="90" y="535" class="label-small" style="text-anchor: start;">Verdict included (Policy ID)</text>
+  <text x="90" y="550" class="label-small" style="text-anchor: start;">L4 + optional L7 metadata</text>
+
+
+  <!-- CENTER SYNC: RING BUFFER -->
+  <rect x="425" y="400" width="150" height="30" class="ring-buffer" />
+  <text x="500" y="420" class="label-bold" fill="#fff">eBPF Ring Buffer</text>
+  
+  <path d="M390 310 Q500 310 500 400" class="arrow-blue" />
+  <text x="510" y="350" class="label-bold" style="text-anchor: start;" fill="#1565c0">Async event write</text>
+  <text x="510" y="365" class="label-small" style="text-anchor: start;" fill="#1565c0">(Non-blocking)</text>
+
+  <text x="500" y="480" class="annotation" style="text-anchor: middle;">"No packet payload copied"</text>
+  <text x="500" y="500" class="annotation" style="text-anchor: middle;">"Zero impact on forwarding latency"</text>
+
+
+  <!-- RIGHT PANEL: USERSPACE OBSERVABILITY -->
+  <rect x="510" y="80" width="440" height="500" class="panel-border" stroke="#7b1fa2" />
+  <text x="730" y="110" class="title-panel" fill="#7b1fa2">Hubble Userspace</text>
+  
+  <rect x="540" y="130" width="380" height="430" class="userspace-box" />
+
+  <rect x="580" y="160" width="300" height="150" class="hubble-box" />
+  <text x="730" y="185" class="label-bold" fill="#7b1fa2">Hubble Agent</text>
+  
+  <rect x="620" y="210" width="220" height="30" fill="#f3e5f5" stroke="#7b1fa2" rx="4" />
+  <text x="730" y="230" class="label-small" style="fill:#7b1fa2; font-weight:600;">Flow Aggregator</text>
+  
+  <rect x="620" y="260" width="220" height="30" fill="#f3e5f5" stroke="#7b1fa2" rx="4" />
+  <text x="730" y="280" class="label-small" style="fill:#7b1fa2; font-weight:600;">gRPC API Server</text>
+
+  <!-- Ring Buffer to Agent -->
+  <path d="M500 430 Q500 500 730 500 L730 310" class="arrow-purple" />
+  <text x="740" y="470" class="label-bold" style="text-anchor: start;" fill="#7b1fa2">Metadata Extraction</text>
+
+  <!-- Annotations Near Userspace -->
+  <text x="550" y="520" class="label-small" style="text-anchor: start;">Sampling configurable</text>
+  <text x="550" y="535" class="label-small" style="text-anchor: start;">Backpressure safe</text>
+  <text x="550" y="550" class="label-small" style="text-anchor: start;">Old events dropped (never blocks datapath)</text>
+
+
+  <!-- CONSUMERS: BOTTOM ROW -->
+  <text x="500" y="620" class="label-bold" style="font-size: 16px;">Observability Consumers</text>
+  
+  <rect x="50" y="640" width="280" height="150" class="consumer-box" />
+  <text x="190" y="670" class="label-bold" fill="#7b1fa2">Hubble CLI</text>
+  <text x="65" y="700" class="label-reg" style="text-anchor: start;">• Real-time flow logs</text>
+  <text x="65" y="720" class="label-reg" style="text-anchor: start;">• Interactive filtering</text>
+  <text x="65" y="740" class="label-reg" style="text-anchor: start;">• Policy audit trail</text>
+
+  <rect x="360" y="640" width="280" height="150" class="consumer-box" />
+  <text x="500" y="670" class="label-bold" fill="#7b1fa2">Hubble UI</text>
+  <text x="375" y="700" class="label-reg" style="text-anchor: start;">• Service dependency map</text>
+  <text x="375" y="720" class="label-reg" style="text-anchor: start;">• Visual drop indicators</text>
+  <text x="375" y="740" class="label-reg" style="text-anchor: start;">• Live traffic visualization</text>
+
+  <rect x="670" y="640" width="280" height="150" class="consumer-box" />
+  <text x="810" y="670" class="label-bold" fill="#7b1fa2">Metrics / Export</text>
+  <text x="685" y="700" class="label-reg" style="text-anchor: start;">• Prometheus / Grafana</text>
+  <text x="685" y="720" class="label-reg" style="text-anchor: start;">• SIEM Integration (OpenTelemetry)</text>
+  <text x="685" y="740" class="label-reg" style="text-anchor: start;">• Long-term storage</text>
+
+  <!-- Agent to Consumers -->
+  <path d="M730 310 L730 600" class="arrow-purple" />
+  <path d="M730 600 L190 600 L190 640" class="arrow-purple" />
+  <path d="M500 600 L500 640" class="arrow-purple" />
+  <path d="M730 600 L810 600 L810 640" class="arrow-purple" />
+
+  <!-- FINAL SUMMARY QUOTE -->
+  <text x="500" y="830" class="label-bold" style="font-size: 16px;">"Observability as an intrinsic property of the network"</text>
+
+</svg>

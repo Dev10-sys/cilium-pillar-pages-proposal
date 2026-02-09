@@ -1,0 +1,117 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text { font-family: 'Inter', sans-serif, system-ui; fill: #263238; }
+      .bg { fill: #ffffff; }
+      .region-box { fill: #fcfcfc; stroke: #cfd8dc; stroke-width: 1.5; stroke-dasharray: 8 4; rx: 8; }
+      .container-box { fill: #ffffff; stroke: #b0bec5; stroke-width: 1.5; rx: 6; }
+      
+      .agent-box { fill: #e3f2fd; stroke: #2196f3; stroke-width: 1.5; rx: 6; }
+      .compiler-box { fill: #f3e5f5; stroke: #9c27b0; stroke-width: 1.5; rx: 6; }
+      .code-box { fill: #fffde7; stroke: #fbc02d; stroke-width: 1.5; rx: 6; }
+      .verifier-box { fill: #ffe0b2; stroke: #ff9800; stroke-width: 2.0; rx: 6; }
+      .jit-box { fill: #e0f2f1; stroke: #009688; stroke-width: 1.5; rx: 6; }
+      .prog-box { fill: #e8f5e9; stroke: #4caf50; stroke-width: 1.5; rx: 6; }
+      .map-box { fill: #e8f5e9; stroke: #4caf50; stroke-width: 1.5; rx: 6; stroke-dasharray: 4 2; }
+      
+      /* Typography */
+      .title { font-size: 18px; font-weight: 600; text-anchor: middle; }
+      .subtitle { font-size: 14px; font-weight: 600; fill: #546e7a; text-anchor: middle; }
+      .label { font-size: 12px; font-weight: 400; text-anchor: middle; }
+      .label-bold { font-size: 12px; font-weight: 600; text-anchor: middle; }
+      .callout { font-size: 11px; font-style: italic; fill: #37474f; text-anchor: start; }
+      
+      /* Connections */
+      .arrow { stroke: #37474f; stroke-width: 1.5; marker-end: url(#arrow-head); }
+      .arrow-dashed { stroke: #37474f; stroke-width: 1.5; stroke-dasharray: 4 2; marker-end: url(#arrow-head); }
+    </style>
+    <marker id="arrow-head" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#37474f" />
+    </marker>
+  </defs>
+
+  <rect width="100%" height="100%" class="bg" />
+  <text x="400" y="40" class="title">eBPF Program Lifecycle in Cilium</text>
+
+  <!-- User Space Region -->
+  <rect x="50" y="70" width="700" height="200" class="region-box" />
+  <text x="400" y="95" class="subtitle">USER SPACE</text>
+
+  <!-- Cilium Agent -->
+  <rect x="100" y="120" width="140" height="120" class="agent-box" />
+  <text x="170" y="145" class="label-bold">Cilium Agent</text>
+  <text x="170" y="165" class="label" style="font-size: 10px;">(Orchestrator)</text>
+  
+  <text x="170" y="210" class="callout" style="text-anchor: middle;">Configures &amp; Loads</text>
+
+  <!-- Source Code -->
+  <rect x="280" y="120" width="100" height="50" class="code-box" />
+  <text x="330" y="145" class="label">eBPF Source (C)</text>
+
+  <line x1="330" y1="170" x2="330" y2="190" class="arrow" />
+
+  <!-- Compiler -->
+  <rect x="280" y="190" width="100" height="50" class="compiler-box" />
+  <text x="330" y="215" class="label">LLVM / Clang</text>
+  <text x="330" y="230" class="label" style="font-size: 10px;">(Compile)</text>
+
+  <line x1="380" y1="215" x2="420" y2="215" class="arrow" />
+
+  <!-- Object File -->
+  <rect x="420" y="190" width="100" height="50" class="code-box" />
+  <text x="470" y="215" class="label">.o Object File</text>
+  
+  
+  <!-- Kernel Space Region (Lower Half) -->
+  <rect x="50" y="300" width="700" height="250" class="region-box" style="fill: #f1f8e9; stroke: #c5e1a5;" />
+  <text x="400" y="325" class="subtitle" style="fill: #33691e;">KERNEL SPACE</text>
+
+  <!-- Transition -->
+  <line x1="470" y1="240" x2="470" y2="350" class="arrow-dashed" />
+  <rect x="420" y="280" width="100" height="20" fill="white" stroke="#cfd8dc" rx="4" />
+  <text x="470" y="294" class="label" style="font-size: 10px;">bpf() Systcall</text>
+
+  <!-- Verifier -->
+  <rect x="420" y="350" width="120" height="60" class="verifier-box" />
+  <text x="480" y="375" class="label-bold">eBPF Verifier</text>
+  <text x="480" y="395" class="label" style="font-size: 10px; fill: #e65100;">(Safety Check)</text>
+
+  <line x1="480" y1="410" x2="480" y2="440" class="arrow" />
+
+  <!-- JIT -->
+  <rect x="420" y="440" width="120" height="50" class="jit-box" />
+  <text x="480" y="465" class="label-bold">JIT Compiler</text>
+  <text x="480" y="480" class="label" style="font-size: 10px; fill: #00695c;">(Bytecode → Native)</text>
+
+  <line x1="350" y1="465" x2="420" y2="465" class="arrow" style="marker-end: none; marker-start: url(#arrow-head);" /> <!-- Reverse arrow logic for map? No, map is attached -->
+  
+  <!-- Native Program -->
+  <rect x="200" y="440" width="140" height="80" class="prog-box" />
+  <text x="270" y="465" class="label-bold">Native eBPF</text>
+  <text x="270" y="485" class="label" style="font-size: 10px;">(Attached to Hook)</text>
+
+  <line x1="420" y1="465" x2="340" y2="465" class="arrow" />
+  
+  <!-- Map -->
+  <rect x="200" y="350" width="140" height="60" class="map-box" />
+  <text x="270" y="375" class="label-bold">eBPF Map</text>
+  <text x="270" y="395" class="label" style="font-size: 10px;">(Shared State)</text>
+
+  <!-- Connection to Map -->
+  <line x1="270" y1="440" x2="270" y2="410" class="arrow" style="stroke-dasharray: 2 2;" />
+  
+  <!-- HOOKS -->
+  <rect x="80" y="465" width="80" height="30" fill="#cfd8dc" rx="4" />
+  <text x="120" y="485" class="label-bold" style="font-size: 11px;">XDP / TC</text>
+  
+  <line x1="200" y1="480" x2="160" y2="480" class="arrow" />
+
+
+  <!-- Persistency Callout -->
+  <rect x="580" y="450" width="160" height="40" fill="#fff9c4" stroke="#fbc02d" rx="4" />
+  <text x="660" y="465" class="callout" style="text-anchor: middle; font-weight: bold;">Programs Persist!</text>
+  <text x="660" y="480" class="callout" style="text-anchor: middle;">(Even if Agent restarts)</text>
+  
+  <path d="M580 470 L340 470" stroke="#fbc02d" stroke-width="1.5" stroke-dasharray="4 2" fill="none" />
+
+</svg>

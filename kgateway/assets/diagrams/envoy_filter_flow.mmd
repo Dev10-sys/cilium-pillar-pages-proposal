@@ -1,0 +1,6 @@
+flowchart LR
+    Request --> FaultFilter[HTTP Fault Filter]
+    FaultFilter -->|Abort?| ReturnError[Return 503/Error]
+    FaultFilter -->|Delay?| Sleep[Wait Duration]
+    Sleep --> Router[Router Filter]
+    Router --> Backend[Backend Service]

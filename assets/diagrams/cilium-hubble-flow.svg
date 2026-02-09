@@ -1,0 +1,104 @@
+<svg width="600" height="850" viewBox="0 0 600 850" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      text { font-family: sans-serif; fill: #263238; }
+      .bg { fill: #ffffff; }
+      
+      .kernel-box { fill: #e8f5e9; stroke: #2e7d32; stroke-width: 1.5; rx: 4; }
+      .hubble-box { fill: #e3f2fd; stroke: #1565c0; stroke-width: 1.5; rx: 4; }
+      .boundary-line { stroke: #546e7a; stroke-width: 1; stroke-dasharray: 4 4; }
+      
+      .arrow { stroke: #37474f; stroke-width: 1.5; marker-end: url(#arrow-head); fill: none; }
+      
+      .label-title { font-size: 18px; font-weight: bold; text-anchor: middle; }
+      .label { font-size: 14px; font-weight: 600; text-anchor: middle; }
+      .label-sub { font-size: 12px; fill: #546e7a; text-anchor: middle; }
+      .annotation { font-size: 12px; fill: #546e7a; font-style: italic; }
+      .footer { font-size: 11px; fill: #78909c; }
+    </style>
+    <marker id="arrow-head" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#37474f" />
+    </marker>
+  </defs>
+
+  <rect width="100%" height="100%" class="bg" />
+  <text x="300" y="40" class="label-title">Hubble Flow Lifecycle (Datapath to Userspace)</text>
+
+  <!-- KERNEL SPACE LABEL -->
+  <text x="50" y="70" class="label" fill="#2e7d32" style="font-size: 12px; text-anchor: start;">KERNEL SPACE</text>
+
+  <!-- 1. Packet Processed -->
+  <rect x="200" y="80" width="200" height="70" class="kernel-box" />
+  <text x="300" y="110" class="label">Packet Processed</text>
+  <text x="300" y="130" class="label-sub">Forwarded OR Dropped</text>
+
+  <line x1="300" y1="150" x2="300" y2="190" class="arrow" />
+
+  <!-- 2. Metadata Generated -->
+  <rect x="200" y="190" width="200" height="80" class="kernel-box" />
+  <text x="300" y="215" class="label">Flow Metadata Generated</text>
+  <text x="300" y="235" class="label-sub">Src/Dst Identity, Verdict</text>
+  <text x="300" y="255" class="label-sub">L4 / L7 Info (if enabled)</text>
+
+  <line x1="300" y1="270" x2="300" y2="310" class="arrow" />
+
+  <!-- 3. Ring Buffer -->
+  <rect x="200" y="310" width="200" height="70" class="kernel-box" />
+  <text x="300" y="335" class="label">eBPF Ring Buffer</text>
+  <text x="300" y="355" class="label-sub">Lock-free, Async, Non-blocking</text>
+
+  <!-- Side Note: Never delays -->
+  <text x="420" y="340" class="annotation" style="text-anchor: start;">← Never delays packet forwarding</text>
+
+
+  <!-- Side Annotation Left: Decoupled -->
+  <text x="180" y="230" class="annotation" style="text-anchor: end;">Datapath and observability decoupled →</text>
+
+
+  <!-- BOUNDARY LINE -->
+  <line x1="50" y1="420" x2="550" y2="420" class="boundary-line" />
+  <text x="550" y="415" class="label" fill="#546e7a" style="font-size: 10px; text-anchor: end;">KERNEL → USERSPACE BOUNDARY</text>
+
+  <line x1="300" y1="380" x2="300" y2="460" class="arrow" />
+
+
+  <!-- USERSPACE LABEL -->
+  <text x="50" y="450" class="label" fill="#1565c0" style="font-size: 12px; text-anchor: start;">USERSPACE</text>
+
+  <!-- 4. Hubble Agent -->
+  <rect x="200" y="460" width="200" height="70" class="hubble-box" />
+  <text x="300" y="485" class="label">Hubble Agent</text>
+  <text x="300" y="505" class="label-sub">Reads buffer, Enriches w/ K8s</text>
+
+  <line x1="300" y1="530" x2="300" y2="570" class="arrow" />
+
+  <!-- Side Annotation Right: No Payload -->
+  <text x="420" y="495" class="annotation" style="text-anchor: start;">← No packet payload copied</text>
+
+
+  <!-- 5. Hubble gRPC API -->
+  <rect x="200" y="570" width="200" height="50" class="hubble-box" />
+  <text x="300" y="600" class="label">Hubble gRPC API</text>
+
+  <!-- Splits -->
+  <line x1="300" y1="620" x2="300" y2="650" class="arrow" style="marker-end: none;" />
+  <line x1="300" y1="650" x2="200" y2="650" class="arrow" style="marker-end: none;" />
+  <line x1="300" y1="650" x2="400" y2="650" class="arrow" style="marker-end: none;" />
+  
+  <line x1="200" y1="650" x2="200" y2="680" class="arrow" />
+  <line x1="400" y1="650" x2="400" y2="680" class="arrow" />
+
+  <!-- CLI -->
+  <rect x="140" y="680" width="120" height="50" class="hubble-box" />
+  <text x="200" y="710" class="label">Hubble CLI</text>
+
+  <!-- UI -->
+  <rect x="340" y="680" width="120" height="50" class="hubble-box" />
+  <text x="400" y="710" class="label">Hubble UI</text>
+
+
+  <!-- Footer Notes -->
+  <text x="50" y="800" class="footer">Flow visibility survives agent restarts</text>
+  <text x="550" y="800" class="footer" style="text-anchor: end;">Sampling configurable for high PPS</text>
+
+</svg>
