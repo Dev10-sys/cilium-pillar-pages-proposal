@@ -9,13 +9,13 @@
 
 ---
 
-I am applying for the **Cilium Project Pillar Pages** mentorship under the CNCF LFX program.
+I learned about the LFX Mentorship Program through the CNCF ecosystem and community channels, including prior exposure to LFX project listings and discussions around structured mentorships in cloud-native projects. While exploring long-term contribution paths within CNCF, LFX stood out as a program that emphasizes sustained, mentor-guided impact rather than short, isolated contributions.
 
-Kubernetes networking concepts are frequently discussed but rarely understood at the system level. Existing documentation frequently privileges configuration syntax over architectural semantics, leaving operators to reverse-engineer system behavior during failures. This gap becomes critical when operators need to debug connectivity issues, audit security policies, or scale clusters beyond default limits.
+I am interested in this mentorship because it focuses on solving real, long-standing gaps in open source projects rather than adding surface-level features. In the case of Cilium, a significant gap exists not in functionality but in how architectural behavior is explained to operators and contributors. Kubernetes networking is widely used, yet poorly understood at the system level, especially when clusters scale or fail. The goal of this project—to create architecture-first, problem-oriented pillar pages—aligns strongly with how I approach technical understanding and documentation.
 
-Cilium, by moving networking, security, and observability into the eBPF datapath, offers a distinct model that requires equally distinct documentation. The goal of this mentorship—to produce architecture-first, problem-oriented pillar pages—aligns with my approach to technical systems. I focus on explaining traffic flows, enforcement points, and failure domains rather than transient feature lists.
+My background includes hands-on experience with Kubernetes concepts, Linux networking fundamentals, and datapath-level reasoning. I have worked with containerized systems where networking, policy enforcement, and observability issues surfaced under real operational constraints. Through prior open source contributions and technical writing efforts, I have developed familiarity with GitHub workflows, maintainer review cycles, and the discipline required to produce review-ready work. More importantly, I focus on understanding why systems behave a certain way, not just how to configure them, which is essential for architecture-level documentation.
 
-Through this work, I aim to contribute durable, high-signal documentation that helps users build accurate mental models of Kubernetes networking and operate Cilium with architectural confidence.
+Through this mentorship, I hope to deepen my understanding of production-grade Kubernetes networking and eBPF-based systems by working closely with experienced maintainers. I want to improve my ability to explain complex distributed systems clearly and precisely, without oversimplification or unnecessary abstraction. Beyond the mentorship period, my goal is to continue contributing to Cilium and CNCF projects with a stronger architectural foundation and a more refined documentation mindset.
 
 — Dev
 
