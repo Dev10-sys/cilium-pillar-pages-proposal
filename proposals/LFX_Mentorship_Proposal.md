@@ -74,346 +74,210 @@ I aim to develop a maintainer-level understanding of how to document complex sof
 - Learn the editorial standards required for high-impact CNCF documentation.
 - Demonstrate that accurate, architecture-first documentation is a critical engineering deliverable.
 
-# 4. Project Introduction
-
-Kubernetes abstracts networking to a degree where the underlying reality is often obscured. When everything works, this abstraction is useful. when it fails, the lack of visibility into the actual datapath makes debugging difficult.
-
-Users often struggle to answer basic architectural questions:
-
-- How does a packet actually get from a Pod on Node A to a Service on Node B?
-- Why did a NetworkPolicy allow traffic I expected to be denied?
-- Is latency introduced by the network, the CNI, or the application?
-
-Cilium solves these problems technically via eBPF, but the _documentation_ must also bridge the gap. This project aims to create a set of "Pillar Pages" that serve as the definitive architectural reference for these core questions.
-
-# 5. Problem Analysis
-
-The core issue is that operators apply correct Kubernetes configurations but misunderstand the resulting system behavior.
-
-### 5.1 Incomplete Mental Models
-
-Users often visualize Kubernetes networking as wires connecting Pods. In reality, it is a complex pipeline of encapsulation, routing decisions, and policy evaluations occurring in the kernel.
-
-### 5.2 Abstraction vs. Reality
-
-```mermaid
-flowchart LR
-    subgraph "User Mental Model"
-    A[Pod A] -->|Kube-Proxy / iptables abstraction| B[Service VIP]
-    B -->|Kube-Proxy / iptables abstraction| C[Pod B]
-    end
-
-    subgraph "Datapath Reality"
-    D[Source Pod] -->|veth| E[eBPF Program (Ingress)]
-    E -->|Route & Encap| F[VXLAN/Geneve Tunnel]
-    F -->|Physical Net| G[Dest Node Kernel]
-    G -->|eBPF Program (Egress)| H[Policy Check]
-    H -->|Delivery| I[Dest Pod]
-    end
-```
-
-### 5.3 Policy Misinterpretation
-
-Security policies are often treated as static firewall rules. However, in Kubernetes, they are dynamic: reliant on identity resolution, label updates, and eventual consistency. Without understanding this, users create policies that are either too permissive or break legitimate traffic during scaling events.
-
-# 6. Proposed Technical Approach
-
-The approach is **Architecture-First** and **Problem-Scoped**.
-
-### Documentation Philosophy
-
-1.  **Start with the Problem:** Every page begins with a concrete user question or failure scenario.
-2.  **Explain the Datapath:** Map the Kubernetes abstraction (e.g., Service) to the datapath implementation (e.g., eBPF Map lookup).
-3.  **Identify Observability Signals:** Show how to prove the explanation is true using CLI tools or metrics.
-
-### Scope and Non-Goals
-
-| Category   | In Scope                                      | Out of Scope                                      |
-| :--------- | :-------------------------------------------- | :------------------------------------------------ |
-| **Focus**  | System behavior, traffic flow, failure modes. | Installation guides, "Getting Started" tutorials. |
-| **Depth**  | Datapath (eBPF), Identity, Routing.           | Kernel source code analysis.                      |
-| **Tone**   | Senior Engineering / Architectural.           | Marketing, sales, feature distinctives.           |
-| **Format** | Markdown concept pages, Diagrams.             | Video tutorials, interactive labs.                |
-
-# 7. Detailed Pillar Breakdown (The Core Proposal)
-
-The pillar pages form the core deliverable of this mentorship. Each page provides an exhaustive architectural deep-dive into a specific domain.
-
-```mermaid
-flowchart TD
-    Networking --> LoadBalancing
-    LoadBalancing --> Security
-    Security --> Observability
-    Observability --> Troubleshooting
-    Troubleshooting --> MultiCluster
-```
-
 ---
 
-## 7.1 Pillar 01: Networking Fundamentals (Deep Dive)
+# 4. Detailed Project Proposal
 
-**Core Question:** "How does a packet traverse the cluster?"
+## 4.1 Executive Summary
 
-### Architectural Concept
+Kubernetes networking is commonly treated as a "black box." When it works, the abstraction is convenient. When it fails, the lack of deep architectural understanding leaves operators stranded. This mentorship proposal aims to solve this **Knowledge Gap** by creating the **Cilium Project Pillar Pages**: a definitive, architecture-first reference that explains _how_ and _why_ the system behaves the way it does.
 
-In Kubernetes, Pods are ephemeral, but they require a unique IP. The challenge is connecting these IPs across nodes without NAT (Network Address Translation).
+This document outlines the research, structure, and technical depth I intend to bring to this project.
 
-### Datapath Implementation
+## 4.2 The Core Problem: Abstraction Leakage
 
-Cilium uses eBPF to attach programs to the network interface (tc-ingress/egress hooks). When a packet leaves a Pod:
+Operators often visualize Kubernetes networking using mental models from physical networking: wires, switches, and firewalls. In reality, Kubernetes networking (especially with Cilium) is a pipeline of **event-driven kernel programs**.
 
-1.  **Ingress:** The veth interface receives the packet.
-2.  **eBPF Classification:** The program checks if the destination is local or remote.
-3.  **Encapsulation:** If remote, the packet is encapsulated (VXLAN/Geneve) with the Identity code embedded in the header.
+- **Misconception:** "A Service is a load balancer."
+- **Reality:** A Service is a collection of eBPF map entries and hash-based selection logic.
+- **Misconception:** "Network Policy blocks IPs."
+- **Reality:** Network Policy prevents identity-to-identity lookups in a hash map.
 
-### Failure Scenarios Covered
+Attempts to debug "Reality" using "Misconception" models lead to extended outage times and frustration.
 
-- **MTU Mismatches:** When the overlay header pushes the packet size beyond the physical network MTU, causing fragmentation or drops.
-- **Veth Pair Errors:** When the virtual cable disconnects or enters a confused state.
+## 4.3 Proposed Solution: The 8-Pillar Architecture
 
-### Observability Signals
-
-- **`cilium status --verbose`**: Inspecting datapath mode.
-- **`ip -d link show`**: Verifying VXLAN interface properties.
-
-```mermaid
-flowchart LR
-    PodA[Source Pod] -->|veth| Host[Node Kernel]
-    Host -->|eBPF Program| Tunnel[VXLAN Encap]
-    Tunnel -->|Physical Net| DestNode[Dest Node Kernel]
-    DestNode -->|Decap & Route| PodB[Dest Pod]
-```
-
----
-
-## 7.2 Pillar 02: Load Balancing & High Performance
-
-**Core Question:** "Why is traffic not evenly distributed?"
-
-### Architectural Concept
-
-Kubernetes Services provide a stable VIP for a set of backends. Standard kube-proxy uses random selection or round-robin via iptables, which degrades as the number of services grows (O(N) lookup).
-
-### Datapath Implementation (Maglev & XDP)
-
-Cilium implements load balancing using eBPF Maps (Hash Tables).
-
-- **O(1) Lookup:** Finding a backend takes constant time, regardless of cluster size.
-- **Maglev Hashing:** Consistent hashing ensures that if a backend fails, only a tiny fraction of flow mappings change, preventing connection resets for unrelated clients.
-- **XDP Acceleration:** For extreme performance, XDP programs run directly in the network driver, processing packets before the OS kernel even sees them.
-
-### Failure Scenarios Covered
-
-- **Connection Stickiness:** Why long-lived connections don't rebalance after scaling.
-- **Backend Churn:** How rapid Pod creation/deletion affects the service map.
+I have structured the documentation into 8 logical "Pillars" that build a complete mental model from the ground up.
 
 ```mermaid
 graph TD
-    Client -->|Packet| XDP[XDP Hook (Driver)]
-    XDP -->|Hash Lookup| BackendMap{Cilium Backend Map}
-    BackendMap -->|Backend 1| Pod1
-    BackendMap -->|Backend 2| Pod2
-    BackendMap -->|Backend 3| Pod3
+    subgraph "Phase 1: Foundation"
+    P1[01 Fundamentals] --> P2[02 Load Balancing]
+    end
+    subgraph "Phase 2: Security"
+    P2 --> P3[03 Microsegmentation]
+    P3 --> P4[04 Network Security]
+    end
+    subgraph "Phase 3: Operations"
+    P4 --> P5[05 Observability]
+    P5 --> P6[06 Troubleshooting]
+    end
+    subgraph "Phase 4: Advanced Scopes"
+    P6 --> P7[07 Multi-Cluster]
+    P7 --> P8[08 Runtime Security]
+    end
+    style P1 fill:#e1f5fe,stroke:#01579b
+    style P2 fill:#e1f5fe,stroke:#01579b
+    style P3 fill:#fff9c4,stroke:#fbc02d
+    style P4 fill:#fff9c4,stroke:#fbc02d
+    style P5 fill:#e8f5e9,stroke:#2e7d32
+    style P6 fill:#e8f5e9,stroke:#2e7d32
+    style P7 fill:#f3e5f5,stroke:#7b1fa2
+    style P8 fill:#f3e5f5,stroke:#7b1fa2
 ```
 
 ---
 
-## 7.3 Pillar 03: Microsegmentation & Identity
+# 5. Technical Breakdown of Pillars
 
-**Core Question:** "Why is my policy not blocking this traffic?"
+## 5.1 Pillar 01: Networking Fundamentals (The Life of a Packet)
 
-### Architectural Concept
+**Objective:** Demystify the path from `socket()` to the wire.
 
-The "IP Allow-list" model fails in Kubernetes because IPs change constantly. Cilium replaces IPs with **Identities**. An identity is a numeric representation of a set of labels (e.g., `app=frontend` -> ID `105`).
+We will trace a packet's journey through the Linux kernel, explaining exactly where Cilium intervenes.
 
-### Datapath Implementation
-
-Security policies are compiled into an eBPF Policy Map.
-
-1.  **Identity Derivation:** When a packet arrives, eBPF extracts the source Identity from the encapsulation header (or looks it up).
-2.  **Policy Verdict:** The kernel checks: `Can ID 105 talk to ID 200 on Port 80?`
-3.  **Action:** `Allow` (forward) or `Deny` (drop immediately).
-
-### Observability Signals
-
-- **`cilium identity list`**: Viewing the mapping of Labels to IDs.
-- **`cilium monitor -t policy`**: Watching real-time verdicts.
-
----
-
-## 7.4 Pillar 04: Network Security & Encryption
-
-**Core Question:** "Is my traffic encrypted and authenticated?"
-
-### Architectural Concept
-
-Zero Trust requires assuming the network is hostile. Encryption (Node-to-Node) protects data in transit.
-
-### Datapath Implementation (WireGuard/IPsec)
-
-Cilium integrates Transparent Encryption directly into the datapath.
-
-- **WireGuard:** Uses a specific network interface (`cilium_wg0`). Traffic routed through this interface is automatically encrypted before leaving the node.
-- **Key Management:** Keys are rotated automatically by the Cilium Agent, transparent to the application.
-
-### Failure Scenarios Covered
-
-- **Handshake Failures:** When nodes cannot agree on encryption keys.
-- **MTU Overhead:** Encryption adds headers; packets must fit within the physical MTU.
+- **Key Concept:** The "Veth Pair" and the "TC Ingress Hook."
+- **Kernel Mechanism:** `bpf_redirect_peer()` vs standard routing.
+- **Encapsulation:** Deep dive into VXLAN header composition and MTU overhead.
 
 ```mermaid
 sequenceDiagram
-    participant PodA
-    participant NodeA (Kernel)
-    participant NodeB (Kernel)
-    participant PodB
-    PodA->>NodeA: Plaintext Packet
-    NodeA->>NodeA: eBPF Encrypt (WireGuard)
-    NodeA->>NodeB: Encrypted Network Traffic
-    NodeB->>NodeB: eBPF Decrypt
-    NodeB->>PodB: Plaintext Packet
+    participant App as Application
+    participant Veth as Veth Pair (Pod)
+    participant Host as Host Interface
+    participant eBPF as Cilium eBPF (tc-ingress)
+    participant Encap as VXLAN Tunnel
+
+    App->>Veth: Send Packet (HTTP)
+    Veth->>Host: Transmit
+    Host->>eBPF: Intercept (Hook)
+    eBPF->>eBPF: Lookup Endpoint Map
+    eBPF->>eBPF: Lookup Identity
+    eBPF-->>Encap: Redirect to Tunnel (bpf_redirect)
+    Encap->>Network: Physical Transmission
 ```
+
+**Observability Evidence:**
+
+- `ip -d link show cilium_vxlan`
+- `cilium map get cilium_lxc`
 
 ---
 
-## 7.5 Pillar 05: Observability (Hubble)
+## 5.2 Pillar 02: Load Balancing (Maglev & XDP)
 
-**Core Question:** "Where did this packet drop?"
+**Objective:** Explain O(1) scalability and High-Performance Datapath.
 
-### Architectural Concept
+Service meshes and proxies (Nginx/HAProxy) are O(N). Cilium is O(1). We explain _why_.
 
-Traditional tools (`tcpdump`) are blind to Kubernetes context. Hubble extracts visibility directly from the kernel.
-
-### Datapath Implementation
-
-- **Ring Buffers:** eBPF programs write flow events (L3/L4 headers, L7 Info) to a shared memory ring buffer.
-- **Asynchronous Processing:** The userspace Hubble Agent reads this buffer, ensuring that logging never blocks network traffic (non-blocking IO).
-
-### Visualization
-
-Hubble reconstructs the Service Map by aggregating flow data, showing who is talking to whom and the health of those connections (Green/Red success rates).
+- **Key Concept:** Consistent Hashing (Maglev).
+- **Kernel Mechanism:** XDP (eXpress Data Path) — dropping/redirecting packets in the network driver before `sk_buff` allocation.
+- **The Map Structure:** `cilium_lb4_services_v2`.
 
 ```mermaid
 flowchart LR
-    Kernel[Kernel eBPF] -->|Events| RingBuffer[Shared Ring Buffer]
-    RingBuffer -->|Read| Userspace[Hubble Agent]
-    Userspace -->|gRPC| UI[Hubble UI / CLI]
+    Packet[Incoming Packet] -->|XDP Hook| Hash[Maglev Hash Function]
+    Hash -->|Consistent Hash Ring| Backend[Backend Selection]
+    Backend -->|O(1) Lookup| Map{Service Map}
+    Map -->|DNAT| PodIP[Dest Pod IP]
 ```
 
----
-
-## 7.6 Pillar 06: Troubleshooting
-
-**Core Question:** "Is it the network, DNS, or the app?"
-
-### Architectural Concept
-
-Structured debugging reduces MTTR (Mean Time To Repair). The pillar defines a decision tree for isolation.
-
-### The Decision Tree
-
-1.  **Pod Level:** Is the application listening? (`kubectl get pod`)
-2.  **Node Level:** Is the route present? (`ip route`)
-3.  **Network Level:** Is segmentation blocking it? (`cilium policy get`)
-4.  **DNS Level:** Is name resolution working? (`nslookup`)
+**Research Note:** I will detail the difference between `standalone` load balancing and `DSR` (Direct Server Return), illustrating how DSR prevents the ingress node from becoming a bottleneck.
 
 ---
 
-## 7.7 Pillar 07: Multi-Cluster Networking (Cluster Mesh)
+## 5.3 Pillar 03 & 04: Identity & Network Security
 
-**Core Question:** "How does Service discovery work across clusters?"
+**Objective:** Move the user from "IP-Thinking" to "Identity-Thinking."
 
-### Architectural Concept
+In high-churn environments, IPs are meaningless.
 
-Cluster Mesh connects multiple clusters into a single logical network without a centralized gateway bottleneck.
+- **Key Concept:** The Security Identity (uint32).
+- **Kernel Mechanism:** `bpf_map_lookup_elem(&POLICY_MAP, &key)`
+- **Encryption:** WireGuard (`cilium_wg0`) vs IPsec implementations.
 
-### Datapath Implementation
+**The Policy Evaluation Logic:**
 
-- **Remote Identities:** Identities are synchronized across clusters. ID 105 in Cluster A means `app=frontend`, and ID 105 in Cluster B means the same.
-- **Direct Routing:** Pod A (Cluster 1) sends packets directly to Pod B (Cluster 2) via a tunnel, preserving the source IP and Identity.
+1.  Extract Source Identity from VXLAN Header.
+2.  Lookup Destination Identity (Local Pod).
+3.  Query Policy Map: `Can(SrcID, DestID, Port/Proto) == ALLOW?`
+4.  Verdict: `TC_ACT_OK` or `TC_ACT_SHOT`.
+
+---
+
+## 5.4 Pillar 05: Observability (Hubble Internals)
+
+**Objective:** Prove that observability can be practically zero-overhead.
+
+- **Key Concept:** Ring Buffers (`perf_event_open`).
+- **Architecture:** Decoupling the critical path (Datapath) from the analytics path (Userspace Agent).
+- **Flow Protocol:** How L3/L4 headers + L7 payloads are extracted efficiently.
 
 ```mermaid
-flowchart LR
-    subgraph Cluster1
-        PodA
+graph TB
+    subgraph Kernel Space
+    Datapath[eBPF Datapath] -->|Verification| RingBuf[Perf Ring Buffer]
     end
-    subgraph Cluster2
-        PodB
+    subgraph User Space
+    RingBuf -->|Async Read| Agent[Hubble Agent]
+    Agent -->|Enrichment| K8s[K8s API Metadata]
+    K8s -->|gRPC| Client[Hubble CLI / UI]
     end
-    PodA <-->|VPN/Direct Tunnel| PodB
 ```
-
-(Note: No central gateway is required for the path).
 
 ---
 
-## 7.8 Pillar 08: Runtime Security integration
+## 5.5 Pillar 07: Multi-Cluster (Cluster Mesh)
 
-**Core Question:** "Is this process execution normal?"
+**Objective:** Explain global identity without a global control plane bottleneck.
 
-### Architectural Concept
+- **Key Concept:** Shared State vs. Federated State.
+- **Mechanism:** `cilium-agent` watching remote etcd/KV-stores (or using KV-store mesh).
+- **Routing:** How a Pod in Cluster A routes to Cluster B without a gateway, preserving encryption and identity transparency.
 
-Network security is only one layer. Runtime security detects compromised processes.
+---
 
-### Datapath Implementation
+# 6. Implementation Strategy (12-Week Roadmap)
 
-- **Process Ancestry:** eBPF tracks `execve` syscalls.
-- **Correlation:** Cilium correlates "Process X launched Shell Y and opened Network Connection Z". This prevents "Living off the Land" attacks where legitimate tools (like `curl`) are used maliciously.
+| Phase                  | Duration   | Goals & Deliverables                                                                                                                                                                   |
+| :--------------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Research & Context** | Week 1-2   | **Audit:** Review all 500+ existing doc pages.<br>**Gap Analysis:** Map specific user complaints (Slack/Issues) to pillar topics.<br>**Outcome:** Detailed content outline per pillar. |
+| **Foundation Layer**   | Week 3-4   | **Drafting:** Pillars 01 (Networking) & 02 (LB).<br>**Diagramming:** Create reusable Mermaid class definitions.<br>**Review:** Initial maintainer sync.                                |
+| **Security Layer**     | Week 5-6   | **Drafting:** Pillars 03 (Microseg) & 04 (Sec).<br>**Lab:** Set up WireGuard testbed for validation screenshots.<br>**Outcome:** Drafts with `bpftool` output examples.                |
+| **Operations Layer**   | Week 7-8   | **Drafting:** Pillars 05 (Obs) & 06 (T-shoot).<br>**Focus:** The "Hubble Decision Tree" for debugging.<br>**Review:** Mid-term evaluation.                                             |
+| **Advanced Scope**     | Week 9     | **Drafting:** Pillars 07 (Multi-Cluster) & 08 (Runtime).<br>**Focus:** Distinguishing Tetragon from Cilium scope.                                                                      |
+| **Refinement**         | Week 10-11 | **Edits:** Address technical inaccuracies.<br>**SEO:** Optimize headers and metadata.<br>**Linking:** Cross-reference existing docs.                                                   |
+| **Finalization**       | Week 12    | **Merge:** Final PR polish.<br>**Handoff:** Maintenance guide for future contributors.                                                                                                 |
 
-# 9. Deliverables
+---
 
-1.  **Eight (8) Pillars:** Comprehensive, version-agnostic Markdown documents.
-2.  **Architecture Diagrams:** SVG/Mermaid visuals for traffic flows and logical components.
-3.  **Review Responses:** Documented updates based on maintainer feedback cycles.
+# 7. Validation & Success Metrics
 
-# 10. Timeline (12 Weeks)
+I define success not just by "pages written" but by "problems solved."
 
-| Phase                 | Weeks | Focus                                                                                                            |
-| :-------------------- | :---- | :--------------------------------------------------------------------------------------------------------------- |
-| Community & Context   | 1     | Deep review of existing Cilium docs, maintainer feedback patterns, and open issues related to documentation gaps |
-| Architecture Baseline | 2     | Finalize common conceptual model, diagram language, and pillar structure consistency                             |
-| Drafting Phase I      | 3–4   | Pillar 01 (Networking Fundamentals) and Pillar 02 (Load Balancing) — first complete drafts                       |
-| Drafting Phase II     | 5–6   | Pillar 03 (Microsegmentation) and Pillar 04 (Network Security) — first complete drafts                           |
-| Drafting Phase III    | 7–8   | Pillar 05 (Observability) and Pillar 06 (Troubleshooting) — first complete drafts                                |
-| Drafting Phase IV     | 9     | Pillar 07 (Multi-Cluster) and Pillar 08 (Runtime Security) — scoped drafts                                       |
-| Review & Refinement   | 10–11 | Maintainer review cycles, diagram corrections, tightening explanations                                           |
-| Final Integration     | 12    | Cross-linking pillars, final edits, merge-ready submission                                                       |
+### Quantitative
 
-**Note:** Drafting phases explicitly represent _first-pass architectural drafts_. Refinement and maintainer feedback are expected and planned.
+- **8 Core Documents** merged into the official Cilium docs.
+- **30+ Architectural Diagrams** (Mermaid/SVG) created.
+- **Zero Regression** on technical accuracy (verified by 2+ maintainers).
 
-# 11. Validation & Success Criteria
+### Qualitative
 
-The success of this project is evaluated through tangible and reviewable outcomes.
+- **"Aha!" Moments:** Feedback from users indicating they finally understand _how_ the packet flows.
+- **Self-Service:** Reduction in "How do I debug X?" questions in the #cilium Slack channel.
+- **Maintainer Bandwidth:** Saving maintainer time by providing a canonical reference they can link to.
 
-### Qualitative Signals
+---
 
-- A reader can explain packet flow, policy enforcement, and failure behavior without referencing configuration.
-- Operators can distinguish between policy, routing, and service failures using documentation alone.
+# 8. About Me & Preparation
 
-### Quantitative Signals
+I am not approaching this as a generic technical writer, but as a systems engineer who values documentation as a critical part of the stack.
 
-- Review feedback from at least two Cilium maintainers per pillar.
-- Acceptance and merge of at least 6 pillar pages into the official documentation structure.
-- Reduction in recurring conceptual questions across Slack/GitHub issues referencing covered topics.
-- Cross-linking of pillar pages from existing Cilium documentation entry points.
+- **Research:** I have spent the last year auditing CNCF networking projects, specifically focusing on the eBPF datapath evolution.
+- **Technical Writing:** I have analyzed the "Documentation as Code" philosophy, ensuring that these pillars are maintainable, version-controllable, and semantically structured.
+- **Commitment:** This proposal represents a synthesized view of hundreds of hours of reading source code, issues, and design docs. I am ready to execute.
 
-The goal is durability and correctness, not volume.
+---
 
-# 12. Prior Preparation
-
-I have invested significant time preparing for this role:
-
-- **Documentation Audit:** Analyzed existing Cilium docs to identify architectural explanation gaps.
-- **eBPF Study:** Detailed review of eBPF datapath hooks and limitations.
-- **Diagramming:** Prototyped architectural diagrams to test visual explanation strategies.
-
-# 13. Availability & Commitment
-
-- **Commitment:** Full duration of the mentorship term.
-- **Availability:** 20-30 hours per week.
-- **Communication:** Available for weekly syncs and asynchronous Slack/GitHub collaboration.
-- **Timezone:** IST (UTC+5:30)
-
-# 14. Conclusion
-
-This mentorship is not just about writing documentation; it is about translating complex system behavior into accessible reliable knowledge. By focusing on architectural reasoning over rote configuration, I aim to create a set of resources that empower Kubernetes operators to build and debug with confidence. I look forward to the opportunity to contribute to the CNCF and the Cilium community.
+**Dev**
+_GitHub: [Dev10-sys](https://github.com/Dev10-sys)_
