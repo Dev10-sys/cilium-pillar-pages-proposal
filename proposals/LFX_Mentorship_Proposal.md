@@ -36,8 +36,6 @@ Through this mentorship, I hope to deepen my understanding of production-grade K
 
 ### 3.1 How did you find out about this program?
 
-### 3.1 How did you find out about this program?
-
 I identified this specific project through my ongoing analysis of the CNCF landscape. My work often involves dissecting how different CNI implementations handle packet flow, which led me to the Cilium documentation. I specifically sought out LFX mentorships that prioritize architectural explanation and system-level documentation, finding the "Pillar Pages" project to be a direct match for my interest in demystifying complex distributed systems. I have also contributed to documentation analysis and proposals for Cilium, as well as code and documentation improvements in other open-source projects like SugarLabs and OWASP WebGoat.
 
 ### 3.2 Why are you interested in this project?
@@ -179,7 +177,7 @@ flowchart TD
 
 - **Purpose:** Broader security posture and encryption.
 - **Core Question:** "Is my traffic encrypted and authenticated?"
-- **Datapath Focus:- **WireGuard/IPsec integration:\*\* Node-to-node encryption.
+- **Datapath Focus:** WireGuard/IPsec integration, node-to-node encryption.
 - **Observability:** Encryption status, handshake metrics.
 
 ### Pillar 05: Understanding Kubernetes Network Observability
@@ -267,3 +265,135 @@ I have invested significant time preparing for this role:
 # 14. Conclusion
 
 This mentorship is not just about writing documentation; it is about translating complex system behavior into accessible reliable knowledge. By focusing on architectural reasoning over rote configuration, I aim to create a set of resources that empower Kubernetes operators to build and debug with confidence. I look forward to the opportunity to contribute to the CNCF and the Cilium community.
+
+---
+
+# Appendix: Pillar Drafts
+
+The following sections contain the initial architectural drafts for the proposed pillars.
+
+## Pillar 01: Networking Fundamentals
+
+### Introduction
+
+Kubernetes networking addresses the challenge of connecting containers across multiple hosts. In traditional server models, applications bind to specific IP addresses and ports. In Kubernetes, containers are ephemeral; they start, stop, and move between nodes dynamically.
+
+### How Kubernetes Networking Works
+
+Kubernetes mandates a flat network model.
+
+1. Every Pod possesses a unique IP address.
+2. Pods act as if they are on the same logical network; they communicate without Network Address Translation (NAT).
+3. Agents on a node (like the kubelet) can communicate with all Pods on that node.
+
+```mermaid
+flowchart TB
+    subgraph NodeA [Node A]
+        PodA[Pod A]
+        KubeletA[Kubelet]
+    end
+    subgraph NodeB [Node B]
+        PodB[Pod B]
+    end
+    PodA -->|Flat Network| PodB
+    KubeletA --> PodA
+```
+
+### Limitations of Default Kubernetes Networking
+
+Standard implementations, such as kube-proxy in `iptables` mode, rely on Linux kernel firewall rules for routing and load balancing. While stable and reliable for small-to-medium clusters, this approach faces challenges at scale.
+
+**Scalability Challenges:** Iptables rules are processed sequentially (O(N) complexity). As the number of Services and Pods grows, the number of rules expands. In clusters with thousands of services, evaluating these rules consumes significant CPU.
+
+## Pillar 02: Load Balancing (High-Performance Datapath)
+
+### Introduction
+
+At standard scale, Kubernetes networking performance is rarely a bottleneck. Default implementations using `iptables` or standard kernel routing mechanisms are sufficient for typical web applications. However, as cluster throughput increases, the overhead of the general-purpose Linux networking stack becomes visible.
+
+### Cilium’s High-Performance Datapath Philosophy
+
+Cilium’s approach to performance is architectural:
+
+1.  **Early Execution**: Process packets at the earliest possible point in the driver or kernel.
+2.  **Bypass Abstractions**: Skip general-purpose stack layers (like netfilter) if the intent of the packet is already known.
+3.  **Deterministic Lookups**: Replace linear lists with O(1) hash maps (eBPF Maps).
+
+### XDP (eXpress Data Path)
+
+XDP allows eBPF programs to run directly in the network device driver, before the Linux kernel parses the packet headers or allocates major memory structures (`sk_buff`).
+
+```mermaid
+flowchart TD
+    NIC[Network Interface] -->|XDP Hook| eBPF[eBPF Program]
+    eBPF -->|Fast Pass| Dest[Destination]
+    eBPF -->|Drop| NULL
+    eBPF -->|Pass| Stack[Standard Linux Stack]
+```
+
+## Pillar 04: Network Security
+
+### Introduction
+
+By default, Kubernetes implements a flat network model where all Pods can communicate with each other. While this simplifies application deployment, it creates significant security risks in multi-tenant or production environments.
+
+### Why IP-Based Security Breaks in Kubernetes
+
+In traditional infrastructure, a server's IP address acts as its identity. In Kubernetes, Pods are ephemeral. Maintaining IP-based allow-lists in this environment is operationally unsafe.
+
+### Identity-Based Enforcement
+
+Cilium decouples security from network addressing. When a Pod starts, Cilium observes its Kubernetes labels (e.g., `app=frontend`, `env=prod`). Based on these labels, Cilium assigns a numeric **Security Identity** to the Pod.
+
+```mermaid
+flowchart LR
+    Labels[Labels: app=frontend] -->|Hash| Identity[Identity: 1532]
+    Policy[Policy Allow: 1532 -> 𓇼] -->|Enforced by| Datapath
+```
+
+## Pillar 05: Observability (Hubble)
+
+### Introduction
+
+In Kubernetes, networking failures are notoriously difficult to debug. The abstraction layers that make Kubernetes powerful—dynamic scheduling, service discovery, and ephemeral addressing—also obscure the underlying network activity.
+
+### What Hubble Is
+
+Hubble is the distributed observability plane for Cilium. It is built on top of Cilium and eBPF to provide deep visibility into the communication and behavior of services as well as the networking infrastructure.
+
+### Where Observability Data Comes From
+
+The source of truth for Hubble is the eBPF datapath acting in the Linux kernel. These eBPF programs naturally possess full context about every packet: key operational metadata, the source identity, the destination identity, and the policy decision (allow/deny).
+
+```mermaid
+flowchart LR
+    Kernel[Kernel eBPF] -->|Ring Buffer| Agent[Hubble Agent]
+    Agent -->|gRPC| CLI[Hubble CLI/UI]
+```
+
+## Pillar 07: Multi-Cluster Networking
+
+### Introduction
+
+As Kubernetes adoption matures, organizations rarely operate a single isolated cluster. The standard deployment model now involves multiple clusters distributed across availability zones, regions, or hybrid cloud environments.
+
+### Cilium Cluster Mesh
+
+Cilium Cluster Mesh allows multiple Kubernetes clusters to be connected into a single, logical connectivity mesh. It enables Pod-to-Pod connectivity across clusters using the same efficiency and security principles as intra-cluster communication.
+
+**Architecture:**
+
+- **Per-Cluster Agents**: The Cilium Agent runs on every node in each cluster.
+- **Shared Identity Model**: Cilium synchronizes security identities across the mesh.
+- **Datapath-to-Datapath**: Traffic flows directly between Pods, bypassing centralized gateways.
+
+```mermaid
+flowchart LR
+    subgraph ClusterA
+        PodA[Pod A]
+    end
+    subgraph ClusterB
+        PodB[Pod B]
+    end
+    PodA <-->|Using Cluster Mesh| PodB
+```
