@@ -2159,10 +2159,10 @@ _What Actually Happened_
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 sequenceDiagram
-    participant DNS as "K8s DNS"
-    participant App as "App Pod"
+    participant DNS as K8s DNS
+    participant App as App Pod
     participant Conntrack
-    participant DeadBackend as "Dead Backend"
+    participant DeadBackend as Dead Backend
 
     App->>DNS: Resolve Service
     DNS-->>App: Service IP
