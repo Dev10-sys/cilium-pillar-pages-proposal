@@ -1,2737 +1,2855 @@
-# Cilium Project Pillar Pages — LFX Mentorship Proposal
+# Linux Foundation Mentorship (LFX) 2026 – Term 1
 
-## CNCF Term 1, 2026
+## Project Proposal
 
----
-
-# Cover Letter
-
-**Project:** Cilium Project Pillar Pages  
+**Project Title:** CNCF Cilium – 8 Pillars: Packet-Centric Mental Model & Architecture Documentation  
+**Organization:** CNCF – Cilium  
 **Mentorship Program:** Linux Foundation Mentorship (LFX)  
-**Term:** Term 1, 2026  
-**Applicant:** Dev  
-**Contact:** kalpanagola9897@gmail.com
+**Term:** 2026 Term 1
+
+### Applicant Details
+
+**Name:** Dev  
+**Email:** kalpanagola9897@gmail.com  
+**Institute Email:** dev.p25@medhaviskillsuniversity.edu.in  
+**Degree:** Bachelor of Technology – Computer Science (AI/ML)  
+**GitHub:** [Dev10-sys](https://github.com/Dev10-sys)  
+**LinkedIn:** Dev
+
+## Cover Letter
+
+I am applying to the Linux Foundation Mentorship Program to work on problems that exist below surface-level abstractions, where real system behavior is defined and where misunderstandings directly lead to production failures.
+
+My interest in cloud-native systems, and Cilium in particular, comes from repeatedly encountering the same issue while learning and contributing to open source: systems are configured correctly, yet behavior still breaks in ways that configuration files, logs, and dashboards fail to explain.
+
+Cilium is a system where this gap is especially visible. Users interact with Kubernetes objects and YAML definitions, but Cilium executes decisions inside the Linux kernel using eBPF. When traffic is dropped, latency changes, or policies behave unexpectedly, the root cause is often not incorrect configuration but an incomplete mental model of how packets are processed at runtime.
+
+The Linux Foundation Mentorship Program appeals to me because it emphasizes production-grade contributions, maintainer feedback, and long-term project value rather than isolated or experimental work. This aligns closely with how I approach open source: understanding execution paths first, then producing changes that are correct, scoped, and maintainable.
+
+Through this mentorship, I aim to contribute documentation that improves how operators, contributors, and maintainers reason about Cilium’s behavior in real production environments.
+
+## Table of Contents
+
+1. **Introduction and Motivation**
+   - 1.1 Why I Am Applying to LFX
+   - 1.2 Why This Project Matters
+   - 1.3 Problem Overview: Configuration-Driven Thinking vs Runtime Execution
+2. **Project Context and Problem Statement**
+   - 2.1 CNCF, Kubernetes, and the Cloud-Native Execution Layer
+   - 2.2 Where Cilium Fits in the CNCF Landscape
+   - 2.3 From Kubernetes Objects to Packet Decisions
+   - 2.4 The Core Problem: A Mental Model Mismatch
+   - 2.5 How Documentation Gaps Amplify the Problem
+   - 2.6 Why Debugging Becomes Non-Intuitive
+   - 2.7 Security Reasoning Breakdown
+   - 2.8 Performance Reasoning Breakdown
+   - 2.9 Unified Problem Statement
+   - 2.10 Why This Project Exists
+3. **The 8 Pillars Framework – Conceptual Overview**
+   - 3.1 Why a Pillar-Based Mental Model
+   - 3.2 Shared Datapath and Packet-Level Reasoning
+   - 3.3 Documentation Grammar Used Across All Pillars
+   - 3.4 How the Framework Is Applied in Real Scenarios
+4. **The 8 Pillars – Documentation Plan**
+   - 4.1 Pillar 1: Identity – Security Beyond IP Addresses
+   - 4.2 Pillar 2: Datapath and Networking – How Packets Move
+   - 4.3 Pillar 3: Policy Enforcement – Zero-Trust Decisions
+   - 4.4 Pillar 4: Layer 7 Visibility Without Sidecars
+   - 4.5 Pillar 5: Observability and Flow Semantics
+   - 4.6 Pillar 6: Performance and eBPF Efficiency
+   - 4.7 Pillar 7: Scalability and Multi-Cluster Behavior
+   - 4.8 Pillar 8: Failure Modes and Operational Debugging
+5. **Documentation Design and Explanation Approach**
+   - 5.1 Packet-Flow-First Explanation Strategy
+   - 5.2 Consistent Terminology and Structure
+   - 5.3 Step-by-Step Kernel and Datapath Reasoning
+6. **Expected Outcomes and Impact**
+   - 6.1 Improved Runtime Understanding of Cilium
+   - 6.2 Reduced Debugging and Operational Confusion
+   - 6.3 Stronger Mental Models for Production Use
+7. **Implementation Plan and Timeline**
+   - 7.1 Execution Philosophy
+   - 7.2 Documentation Workflow
+   - 7.3 Pillar-Wise Execution Plan
+   - 7.4 12-Week Timeline and Milestones
+8. **About Me**
+   - 8.1 Technical Background and Interests
+   - 8.2 Open Source Contributions (Merged Work)
+   - 8.3 Why I Am a Good Fit for This Project
 
 ---
 
-I learned about the LFX Mentorship Program through the CNCF ecosystem and community channels, including prior exposure to LFX project listings and discussions around structured mentorships in cloud-native projects. While exploring long-term contribution paths within CNCF, LFX stood out as a program that emphasizes sustained, mentor-guided impact rather than short, isolated contributions.
+## 1. Introduction and Motivation
 
-I am interested in this mentorship because it focuses on solving real, long-standing gaps in open source projects rather than adding surface-level features. In the case of Cilium, a significant gap exists not in functionality but in how architectural behavior is explained to operators and contributors. Kubernetes networking is widely used, yet poorly understood at the system level, especially when clusters scale or fail. The goal of this project—to create architecture-first, problem-oriented pillar pages—aligns strongly with how I approach technical understanding and documentation.
+### 1.1 How I Found the LFX Mentorship Program
 
-My background includes hands-on experience with Kubernetes concepts, Linux networking fundamentals, and datapath-level reasoning. I have worked with containerized systems where networking, policy enforcement, and observability issues surfaced under real operational constraints. Through prior open source contributions and technical writing efforts, I have developed familiarity with GitHub workflows, maintainer review cycles, and the discipline required to produce review-ready work. More importantly, I focus on understanding why systems behave a certain way, not just how to configure them, which is essential for architecture-level documentation.
+My entry into the LFX Mentorship Program was a natural extension of my ongoing open-source work rather than a one-off discovery.
 
-Through this mentorship, I hope to deepen my understanding of production-grade Kubernetes networking and eBPF-based systems by working closely with experienced maintainers. I want to improve my ability to explain complex distributed systems clearly and precisely, without oversimplification or unnecessary abstraction. Beyond the mentorship period, my goal is to continue contributing to Cilium and CNCF projects with a stronger architectural foundation and a more refined documentation mindset.
+While preparing for GSoC, I was actively contributing to open-source projects and working under guidance from a college mentor who encourages long-term OSS involvement. During discussions around contribution strategy beyond GSoC, LFX was introduced to me as a mentorship program focused on production-grade, maintainer-aligned work, rather than short exploratory tasks.
 
-— Dev
+After this introduction, I independently explored the LFX Mentorship portal and reviewed:
 
----
+- past and ongoing CNCF mentorship projects
+- project scopes and expected outcomes
+- mentor expectations and review standards
 
-# Table of Contents
+While exploring CNCF projects, work related to CNCF stood out, particularly projects that operate close to system behavior rather than application-level abstractions. Among these, Cilium stood out due to its focus on runtime execution, reliability, and design-level reasoning.
 
-1. [Student Details](#student-details)
-2. [LFX Application Questions](#lfx-application-questions)
-3. [Executive Summary](#executive-summary)
-4. [The Problem Space](#the-problem-space)
-5. [Solution Architecture](#solution-architecture)
-6. [Pillar 01: Networking Fundamentals](#pillar-01-networking-fundamentals)
-7. [Pillar 02: Load Balancing & Performance](#pillar-02-load-balancing--performance)
-8. [Pillar 03: Microsegmentation](#pillar-03-microsegmentation)
-9. [Pillar 04: Network Security & Encryption](#pillar-04-network-security--encryption)
-10. [Pillar 05: Observability with Hubble](#pillar-05-observability-with-hubble)
-11. [Pillar 06: Troubleshooting](#pillar-06-troubleshooting)
-12. [Pillar 07: Multi-Cluster Networking](#pillar-07-multi-cluster-networking)
-13. [Pillar 08: Runtime Security](#pillar-08-runtime-security)
-14. [Project Timeline](#project-timeline)
-15. [Success Metrics](#success-metrics)
-16. [Conclusion](#conclusion)
+Based on mentor guidance and my own evaluation of the ecosystem, I decided to apply to LFX with a project aligned to long-term contribution value rather than short-term learning goals.
 
----
+### 1.2 Why I Am Interested in This Mentorship Program
 
-# Student Details
+My interest in this mentorship comes from a growing focus on how systems behave beneath their abstractions, not just how they are configured or used.
 
-| Category                | Details                                                    |
-| :---------------------- | :--------------------------------------------------------- |
-| **Name**                | Dev                                                        |
-| **Primary Email**       | kalpanagola9897@gmail.com                                  |
-| **Institute Email**     | dev.p25@medhaviskillsuniversity.edu.in                     |
-| **GitHub**              | [Dev10-sys](https://github.com/Dev10-sys)                  |
-| **LinkedIn**            | [dev-10-shadow](https://www.linkedin.com/in/dev-10-shadow) |
-| **Location / Timezone** | India (IST / UTC+5:30)                                     |
-| **Project**             | **Cilium Project Pillar Pages**                            |
-| **Organization**        | CNCF / Cilium                                              |
+While learning Kubernetes and cloud-native systems, I repeatedly encountered scenarios where configurations appeared correct but behavior still broke in unexpected ways. This led me to focus less on surface-level usage and more on understanding execution paths, decision boundaries, and failure modes.
 
----
+I learn systems most effectively by:
 
-# LFX Application Questions
+- building real setups
+- breaking them intentionally
+- tracing what happens when assumptions fail
 
-## Q1: How did you find out about this program?
+Open source provides real feedback loops for this style of learning. Mistakes are visible, reasoning is reviewed, and correctness matters.
 
-I identified this specific project through my ongoing analysis of the CNCF landscape. My work often involves dissecting how different CNI implementations handle packet flow, which led me to the Cilium documentation. I specifically sought out LFX mentorships that prioritize architectural explanation and system-level documentation, finding the "Pillar Pages" project to be a direct match for my interest in demystifying complex distributed systems.
+Cilium is especially compelling to me because it combines:
 
-## Q2: Why are you interested in this project?
+- networking
+- security
+- observability
+- performance
 
-My interest lies in the gap between "standard" Kubernetes networking (iptables/kube-proxy) and the eBPF-based datapath Cilium provides. Operators often bring mental models from legacy networking that do not map cleanly to eBPF concepts like identity-based security or map-based routing.
+into a single system that executes inside the Linux kernel using eBPF. Understanding such a system requires moving beyond YAML-driven thinking to packet-level and kernel-level reasoning.
 
-This project is an opportunity to:
+LFX is the right environment for this work because it provides:
 
-- **Formalize System Knowledge**: Writing about a system is the most rigorous way to understand it
-- **Solve Operational Pain**: Provide the "missing manual" for debugging and architecture
-- **Collaborate with Maintainers**: Engage with engineers who built the datapath
+- structured mentorship
+- direct maintainer feedback
+- expectations aligned with production systems
 
-## Q3: What relevant experience do you have?
+Most importantly, it supports work that improves how complex systems are understood, not just how they are configured.
 
-**Open Source Contributions:**
+### 1.3 Experience and Skills Relevant to This Program
 
-| Project       | Contribution                      | Type          | Status      |
-| :------------ | :-------------------------------- | :------------ | :---------- |
-| Cilium        | Documentation analysis & proposal | Design / Docs | In progress |
-| SugarLabs     | Bug fix / feature PR              | Code          | Merged      |
-| OWASP WebGoat | Documentation & code improvements | Code          | Merged      |
+My experience aligns with this project primarily through documentation, system reasoning, and maintainer-aligned contributions.
 
-**Technical Background:**
+**Open Source Contributions**
 
-- Kubernetes internals (kubelet, API server, CNI workflow)
-- Linux networking (iptables, tc, routing)
-- eBPF fundamentals (program types, maps, verifier)
-- Technical writing with focus on system behavior
+- **CHAOSS:** Contributed documentation improvements focused on clarifying how contributor sustainability metrics are commonly misinterpreted. The work emphasized reasoning and context over raw numbers, helping readers avoid incorrect conclusions.
+- **BeagleBoard:** Contributed documentation fixes that required understanding hardware–software interaction and aligning examples with actual build outputs. The focus was on precision and reducing user confusion rather than adding features.
+- **Sugar Labs:** Contributed a production fix addressing recovery behavior after a datastore crash. The issue required understanding runtime behavior, failure conditions, and safe recovery boundaries. The change was intentionally scoped, manually tested, reviewed, and merged by maintainers.
 
-## Q4: What do you hope to gain from this mentorship?
+Across these projects, I learned how maintainers evaluate changes, how to scope fixes responsibly, and how to communicate behavior clearly.
 
-I aim to develop a maintainer-level understanding of how to document complex software systems with:
+**Technical Background**
+I am comfortable working with:
 
-- Technical precision in eBPF explanations
-- Accessibility for non-kernel engineers
-- Editorial standards for high-impact CNCF documentation
+- Docker and containerized environments
+- Kubernetes fundamentals
+- Linux-based development workflows
 
----
+I also completed a frontend and UI/UX internship where the focus was on structure, clarity, and consistency. While not directly related to kernel-level work, this experience strengthens my ability to present complex information in a readable and maintainable form.
 
-# Executive Summary
+**Personal Project**
+I built **SHINRA LABS**, a data annotation platform prototype for LLM training workflows. My role involved:
 
-## The Documentation Crisis in Cloud Native Networking
+- system architecture and workflow design
+- data handling and validation pipelines
+- anticipating edge cases and user confusion
 
-Kubernetes networking has a **knowledge gap crisis**. The existing documentation landscape consists of:
+A key challenge was explaining why the system behaved a certain way instead of treating it as a black box. This experience directly influences how I approach documentation: behavior first, configuration second.
 
-```mermaid
-graph LR
-    subgraph "Current State"
-        Tutorials["Beginner Tutorials<br/>❌ Too Shallow"]
-        API["API References<br/>❌ No Context"]
-        Source["Source Code<br/>❌ Too Deep"]
-    end
+### 1.4 What I Hope to Gain From This Mentorship
 
-    subgraph "Missing Layer"
-        Architecture["Architecture Docs<br/>✅ This Proposal"]
-    end
+Through this mentorship, I want to deepen my understanding of cloud-native networking at runtime, not just at the configuration level.
 
-    Tutorials -.->|Gap| Architecture
-    API -.->|Gap| Architecture
-    Source -.->|Gap| Architecture
+From a technical perspective, I aim to develop an end-to-end understanding of:
 
-    style Tutorials fill:#ffcdd2
-    style API fill:#ffcdd2
-    style Source fill:#ffcdd2
-    style Architecture fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px
-```
+- packet flow through the datapath
+- identity-based security decisions
+- observability signals generated at execution time
+- performance costs introduced by kernel-level logic
 
-**The Core Issue:**
-Operators apply correct configurations but fundamentally misunderstand the resulting system behavior, leading to:
+Beyond technical depth, I want to learn how maintainers:
 
-- Extended outages during debugging
-- Security misconfigurations
-- Inability to reason about performance
-- Fear of adopting advanced features
+- reason about failures and edge cases
+- balance correctness, performance, and usability
+- decide what belongs in documentation and what does not
+- communicate complex behavior responsibly
 
-**The Solution:**
-Create **8 Pillar Pages** that serve as the definitive architectural reference, explaining the "why" and "how" of Cilium's eBPF datapath.
+My long-term goal is to build strong system-level intuition and contribute sustainably to large, long-running open-source projects where correctness and clarity matter.
 
 ---
 
-# The Problem Space
+## 2. Project Context and Problem Statement
 
-## Problem 1: Mental Model Mismatch
+### 2.1 CNCF, Kubernetes, and the Cloud-Native Execution Layer
 
-### User Expectation vs Reality
+The Cloud Native Computing Foundation hosts projects that operate at the lowest layers of modern distributed systems. These are not application tools. They define infrastructure behavior where failures directly impact production reliability, security, and performance.
 
-```mermaid
-flowchart TD
-    subgraph Misconception["❌ User Mental Model"]
-        C1[Client] -->|Magic| S[Service VIP]
-        S -->|Magic| B[Backend Pod]
-    end
+At the center of this ecosystem is Kubernetes, which acts as a control plane. Kubernetes defines desired state through objects such as Pods, Services, and Policies. It is intentionally declarative and deliberately avoids implementing runtime behavior.
 
-    subgraph Reality["✅ Actual Datapath"]
-        C2[Client Pod] -->|1. veth pair| Host[Host Kernel]
-        Host -->|2. eBPF tc-ingress| Map[Cilium Service Map]
-        Map -->|3. Hash Lookup O(1)| Backend[Backend Selection]
-        Backend -->|4. DNAT Rewrite| Encap[VXLAN Encapsulation]
-        Encap -->|5. Physical Network| Dest[Dest Node]
-        Dest -->|6. Decapsulate| Pod2[Backend Pod]
-    end
+This design creates a layered execution model:
 
-    style Misconception fill:#ffebee
-    style Reality fill:#e8f5e9
-```
+- User intent is expressed through configuration
+- Kubernetes reconciles desired state
+- Runtime execution is delegated to lower layers
 
-## Problem 2: IP-Centric Thinking in a Label-Based World
+Once traffic begins flowing, Kubernetes exits the execution path entirely. From that point onward, actual behavior is determined below Kubernetes, inside the networking and kernel layers.
 
-| Traditional Networking | Kubernetes Reality              | Cilium's Solution       |
-| :--------------------- | :------------------------------ | :---------------------- |
-| Static IPs             | Pods change IPs every rollout   | Identity-based security |
-| Firewall rules by IP   | IP allow-lists break constantly | Label-based policies    |
-| Traceroute by hop      | Overlay obscures path           | Hubble flow visibility  |
+This separation is intentional and powerful. It is also the first major source of misunderstanding for users and operators.
 
-## Problem 3: Performance Black Box
+### 2.2 Where Cilium Fits in the CNCF Landscape
 
-Operators cannot answer:
+Cilium is a CNCF project that implements networking, security, and observability directly inside the Linux kernel using eBPF.
 
-- "Why is my Service slow?"
-- "Is it network, CNI, or application?"
-- "How do I prove the bottleneck location?"
+Unlike traditional CNI implementations that rely heavily on iptables chains, userspace proxies, or IP-centric filtering, Cilium programs kernel execution paths so that decisions are made at packet-processing time.
 
-```mermaid
-graph TB
-    Question["Performance Issue Reported"]
+At a high level, responsibility is split as follows:
 
-    Question --> Unknown1{Network?}
-    Unknown1 --> Unknown2{CNI?}
-    Unknown2 --> Unknown3{Application?}
-    Unknown3 --> Guess[Trial and Error]
+- Kubernetes declares intent
+- The CNI interface hands off execution
+- Cilium enforces networking, security, and observability
+- The Linux kernel executes eBPF programs
+- The network carries traffic
 
-    style Guess fill:#ffcdd2
-```
+This positioning gives Cilium fine-grained control and high performance. At the same time, it fundamentally shifts where decisions are made. Users still reason in Kubernetes concepts, while Cilium executes logic in the kernel.
+
+### 2.3 From Kubernetes Objects to Packet Decisions
+
+From a user’s perspective, interaction with the system happens through high-level objects such as Deployments, Services, NetworkPolicies, and YAML configuration.
+
+At runtime, however, Cilium operates on an entirely different set of primitives:
+
+- packets rather than services
+- kernel hook points rather than controllers
+- eBPF programs rather than API objects
+- numeric identities rather than labels
+
+The actual execution path looks like this:
+
+- a packet arrives on a node
+- it enters the Linux networking stack
+- an eBPF hook intercepts the packet
+- Cilium logic executes
+- identity is resolved
+- policy is evaluated
+- a forward or drop decision is made
+- observability signals may be emitted
+
+At this stage, Kubernetes objects are no longer consulted. Configuration files are not referenced. In many cases, applications never see the packet at all.
+
+This execution gap is invisible unless the user already understands kernel-level packet processing.
+
+### 2.4 The Core Problem: A Mental Model Mismatch
+
+The central issue is not misconfiguration. It is a mismatch between how users think and how the system actually executes.
+
+Users approach Cilium with a Kubernetes-shaped mental model:
+
+- behavior driven by YAML
+- services and IPs as primary concepts
+- logs and events as debugging tools
+- features treated as independent components
+
+Cilium, however, operates with a very different execution model:
+
+- behavior defined by kernel programs
+- packets and identities as primary inputs
+- decisions embedded in a shared datapath
+- features interacting inside the same execution path
+
+Users reason at the configuration layer. Cilium executes at the kernel layer.
+
+This gap causes configurations to look correct while behavior remains unpredictable.
+
+### 2.5 How Documentation Gaps Amplify the Problem
+
+Most existing documentation is structured around:
+
+- enabling features
+- explaining configuration fields
+- providing example YAML
+
+What is often missing is explanation of runtime behavior:
+
+- where packets are intercepted
+- when decisions become final
+- why traffic is dropped
+- how multiple features interact inside a shared datapath
+
+As a result, users learn syntax without learning behavior. Features are enabled, but outcomes remain difficult to predict. When issues occur, debugging becomes guess-driven and trust in the system degrades.
+
+This is not a user capability problem. It is a documentation model problem.
+
+### 2.6 Why Debugging Becomes Non-Intuitive
+
+Users typically expect debugging to follow a familiar pattern:
+
+- observe a failure
+- inspect logs
+- adjust configuration
+- restart workloads
+
+In Cilium, this approach often fails because many critical decisions occur before the application layer is involved. Packet drops happen inside the kernel. Logs may be empty. Configuration appears valid.
+
+Without knowing where decisions occur, users debug at the wrong layer and misinterpret symptoms.
+
+### 2.7 Security Reasoning Breakdown
+
+Cilium enforces security using identity-based policy rather than IP-based rules.
+
+Labels define identity. Identities are represented numerically inside the kernel. Policies are evaluated against identity, not IP address.
+
+If identity resolution changes due to churn, scaling, or rollout:
+
+- policy definitions still appear correct
+- traffic behavior can change unexpectedly
+
+Without understanding the identity lifecycle and enforcement points, security behavior feels unreliable even when configuration is unchanged.
+
+### 2.8 Performance Reasoning Breakdown
+
+Performance behavior in Cilium is determined by kernel-level execution cost:
+
+- eBPF instruction paths
+- map lookups
+- policy complexity
+- datapath length
+
+Users often attribute latency or throughput issues to applications or network congestion, while the real cause lies in datapath execution.
+
+Without visibility into execution cost and decision paths, performance tuning becomes unsafe and reactive.
+
+### 2.9 Unified Problem Statement
+
+Across debugging, security, and performance, the same root issue appears.
+
+Cilium is a kernel-executed, packet-driven system, but most users approach it as a Kubernetes configuration tool.
+
+This mismatch makes behavior hard to predict, failures hard to debug, and performance difficult to reason about.
+
+### 2.10 Why This Project Exists
+
+This project addresses that gap by restructuring documentation around how Cilium actually behaves at runtime.
+
+Instead of explaining features in isolation, the documentation focuses on packet lifecycles, execution paths, and decision points, explicitly connecting configuration intent to kernel-level behavior.
+
+The goal is not to simplify Cilium. The goal is to replace guesswork with understanding.
 
 ---
 
-# Solution Architecture
+## 3. The 8 Pillars Framework – Conceptual Overview
 
-## The 8-Pillar Framework
+### 3.1 Why a Pillar-Based Mental Model
 
-```mermaid
-graph TB
-    subgraph Layer1["🔵 Foundation (Weeks 3-4)"]
-        P1["Pillar 01<br/>Networking Fundamentals<br/>━━━━━━━━━━<br/>• Packet lifecycle<br/>• veth pairs<br/>• eBPF hooks<br/>• Encapsulation"]
+Most existing documentation around Cilium is organized in a feature-centric way. This structure is effective for enabling functionality, but it fails when users need to reason about behavior.
 
-        P2["Pillar 02<br/>Load Balancing<br/>━━━━━━━━━━<br/>• Maglev hashing<br/>• XDP acceleration<br/>• DSR<br/>• O(1) scalability"]
-    end
+In real deployments, features do not execute in isolation. Networking, security, observability, and performance logic all execute through a single shared datapath. When multiple features are enabled simultaneously, users are left without a way to predict execution order, interaction effects, or final outcomes.
 
-    subgraph Layer2["🟠 Security (Weeks 5-6)"]
-        P3["Pillar 03<br/>Microsegmentation<br/>━━━━━━━━━━<br/>• Identity model<br/>• Policy maps<br/>• L7 filtering<br/>• Default deny"]
+This problem is especially pronounced in Cilium because it is not a collection of loosely coupled components. All critical logic executes inside the Linux kernel, and every packet traverses the same sequence of decisions regardless of which feature introduced them.
 
-        P4["Pillar 04<br/>Network Security<br/>━━━━━━━━━━<br/>• WireGuard/IPsec<br/>• Key rotation<br/>• Transparent encryption<br/>• mTLS"]
-    end
+As a result:
 
-    subgraph Layer3["🟢 Operations (Weeks 7-8)"]
-        P5["Pillar 05<br/>Observability<br/>━━━━━━━━━━<br/>• Hubble architecture<br/>• Flow events<br/>• Ring buffers<br/>• Service maps"]
+- configurations appear correct
+- behavior still feels unexpected
+- failures are hard to localize
+- performance changes are difficult to explain
 
-        P6["Pillar 06<br/>Troubleshooting<br/>━━━━━━━━━━<br/>• Decision trees<br/>• Failure isolation<br/>• Debug commands<br/>• Common issues"]
-    end
+This is not caused by incorrect configuration. It is caused by reasoning about the system at the wrong abstraction level.
 
-    subgraph Layer4["🟣 Advanced (Week 9)"]
-        P7["Pillar 07<br/>Multi-Cluster<br/>━━━━━━━━━━<br/>• Cluster Mesh<br/>• Global services<br/>• Identity sync<br/>• Cross-cluster policy"]
+The 8 Pillars framework replaces feature-centric thinking with execution-centric reasoning. Instead of asking “which feature is involved,” it trains users to ask “which decision is being made, where, and why.”
 
-        P8["Pillar 08<br/>Runtime Security<br/>━━━━━━━━━━<br/>• Process correlation<br/>• Syscall events<br/>• Tetragon integration<br/>• Threat detection"]
-    end
+### 3.2 Shared Datapath and Packet-Level Reasoning
 
-    P1 --> P2
-    P2 --> P3
-    P3 --> P4
-    P4 --> P5
-    P5 --> P6
-    P6 --> P7
-    P7 --> P8
+At runtime, Cilium does not operate on services, pods, or policies as first-class objects. It operates on individual packets moving through the kernel.
 
-    style P1 fill:#bbdefb,stroke:#1976d2,stroke-width:2px
-    style P2 fill:#bbdefb,stroke:#1976d2,stroke-width:2px
-    style P3 fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
-    style P4 fill:#ffe0b2,stroke:#f57c00,stroke-width:2px
-    style P5 fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-    style P6 fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-    style P7 fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px
-    style P8 fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px
-```
+Each packet:
+
+- enters the Linux networking stack
+- passes through kernel hook points
+- executes eBPF programs
+- triggers identity resolution
+- undergoes policy evaluation
+- is forwarded, redirected, or dropped
+
+This happens independently for every packet.
+
+Because all logic executes through a shared datapath:
+
+- different features interact implicitly
+- execution order matters
+- earlier decisions constrain later ones
+- some decisions cannot be overridden
+
+Understanding Cilium therefore requires packet-level reasoning. Without understanding the packet lifecycle, users cannot reliably explain:
+
+- why traffic was dropped
+- why observability signals are missing
+- why latency changed after enabling a feature
+
+Kernel-level execution is not an implementation detail. It is the execution environment itself.
+
+### 3.3 Documentation Grammar Used Across All Pillars
+
+The 8 Pillars framework uses a consistent documentation grammar designed to retrain how users think about system behavior.
+
+Each pillar follows the same reasoning structure:
+
+- **Start from real user confusion:** The explanation begins with symptoms users actually observe in production, not with configuration syntax.
+- **Introduce the conceptual decision:** Each pillar explains what decision the system is trying to make and why that decision exists.
+- **Describe kernel-level execution:** The documentation shows where and how the decision is implemented inside the datapath.
+- **Identify the decision boundary:** The point where behavior becomes final is explicitly documented.
+- **Cover failure and edge cases:** Non-happy paths are explained instead of being implied or ignored.
+- **Explain observable signals:** What can be seen, what cannot, and why.
+- **Link to other pillars:** This prevents isolated feature thinking and reinforces shared execution paths.
+
+This structure is repeated across all pillars to build familiarity, confidence, and predictability.
+
+### 3.4 How the Framework Is Applied in Real Scenarios
+
+The value of the 8 Pillars framework becomes clear when applied to real operational problems.
+
+When debugging broken connectivity, instead of iterating through configuration changes, users trace the packet through identity, policy, routing, and observability decisions. This narrows failures to a specific stage in the execution path.
+
+When reasoning about policy enforcement, identity resolution and enforcement order are made explicit. Unexpected allows or drops become explainable outcomes rather than mysterious behavior.
+
+When investigating performance issues, attention shifts from application-level assumptions to datapath execution cost. Users can identify which pillar introduces overhead and why.
+
+Across these scenarios, the framework replaces trial-and-error debugging with decision-driven reasoning.
+
+It does not reduce system complexity. It exposes complexity in a structured and understandable way.
 
 ---
 
-# Pillar 01: Networking Fundamentals
+## 4. The 8 Pillars – Documentation Plan
 
-## Objective
+### 4.1 Pillar 1: Identity — Security Beyond IP Addresses
 
-Demystify the Linux kernel networking stack and explain exactly where and how Cilium's eBPF programs intervene in packet processing.
+**What This Pillar Establishes**
+Identity is not a feature in Cilium. It is the foundational execution primitive on which policy enforcement, observability, encryption, and troubleshooting depend.
 
-## Core Questions Answered
+Cilium deliberately removes IP addresses from the security decision path and replaces them with label-derived, kernel-resident identities. The purpose of this pillar is to shift user reasoning away from where traffic comes from and toward which workload generated it.
 
-1. How does a packet travel from `send()` to the wire?
-2. What is a veth pair and why does it exist?
-3. How does VXLAN encapsulation work byte-by-byte?
-4. What are tc hooks and when do they fire?
+If identity is misunderstood, every other pillar becomes misleading.
 
-## The Complete Packet Journey
+**Why IP-Based Security Breaks in Kubernetes**
+Kubernetes violates nearly every assumption that traditional network security relies on:
 
-### Stage 1: Application Layer
+- IP addresses are ephemeral
+- Pods reschedule frequently
+- Nodes churn
+- Services abstract backend location
+- Overlay networks rewrite traffic paths
 
-```mermaid
-sequenceDiagram
-    participant App as Application Process
-    participant Socket as Socket Layer (Kernel)
-    participant TCP as TCP/IP Stack
-    participant Route as Routing Layer
+As a result, IP-based reasoning becomes unreliable.
 
-    App->>Socket: write(fd, data, len)
-    Note over App,Socket: Userspace → Kernel boundary
+| Assumption                | Reality                  |
+| :------------------------ | :----------------------- |
+| IP identifies a workload  | IP identifies a moment   |
+| Firewall rules are stable | Rules drift continuously |
+| Location implies trust    | Location is meaningless  |
 
-    Socket->>Socket: Acquire socket lock
-    Socket->>TCP: tcp_sendmsg()
-    TCP->>TCP: Segment data (MSS)
-    TCP->>TCP: Build TCP header
-    TCP->>TCP: Calculate checksum
-    TCP->>Route: ip_queue_xmit()
+Cilium removes IP addresses from security reasoning entirely.
 
-    Note over Route: Routing decision:<br/>Local or remote?
-```
+**Identity as a Security Primitive**
+In Cilium, identity represents intent, not location.
 
-### Stage 2: Network Namespace Transition
+An identity answers a single question:
+**What is this workload allowed to do, regardless of where it runs?**
 
-```mermaid
-graph LR
-    subgraph PodNS["Pod Network Namespace<br/>(netns: cni-abc123)"]
-        eth0["eth0<br/>10.0.1.42/24<br/>MTU 1450"]
-    end
+Identity in Cilium is:
 
-    subgraph HostNS["Host Network Namespace<br/>(netns: default)"]
-        lxc_health["lxc_health_<br/>Host end of veth"]
-    end
+- derived from Kubernetes metadata
+- stable across pod rescheduling
+- shared consistently across the cluster
+- enforced directly inside the kernel datapath
 
-    eth0 <-->|"Virtual Ethernet Cable<br/>(veth pair)"| lxc_health
+**Label-to-Identity Resolution Model**
+When a pod is created:
 
-    lxc_health -->|Packet arrives| eBPF["🔥 eBPF tc-ingress hook"]
+- Kubernetes assigns labels
+- Cilium extracts:
+  - pod labels
+  - namespace labels
+  - system labels
+    These labels are then:
+- normalized
+- deterministically ordered
+- hashed
 
-    style eth0 fill:#e3f2fd
-    style lxc_health fill:#fff3e0
-    style eBPF fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px
-```
-
-**Veth Pair Creation:**
-
-```bash
-# This happens during Pod creation (by Cilium CNI)
-ip netns add cni-abc123
-ip link add eth0 netns cni-abc123 type veth peer name lxc_health
-ip -n cni-abc123 addr add 10.0.1.42/24 dev eth0
-```
-
-### Stage 3: eBPF Interception Points
+From this process, a **numeric security identity** is allocated.
+This numeric identity is the only object the datapath operates on.
 
 ```mermaid
-flowchart TD
-    NIC[Physical NIC<br/>eth0] -->|1️⃣| XDP[XDP Hook<br/>Driver Level]
-
-    XDP -->|XDP_DROP| Drop1[❌ Drop<br/>DDoS protection]
-    XDP -->|XDP_PASS| Kernel[Linux Kernel<br/>sk_buff allocation]
-
-    Kernel -->|2️⃣| TC_In[tc-ingress Hook<br/>Veth Host Side]
-
-    TC_In --> Policy{Policy Check}
-    Policy -->|DENY| Drop2[❌ Drop<br/>Policy denied]
-    Policy -->|ALLOW| Process[Process Packet]
-
-    Process -->|3️⃣| TC_Eg[tc-egress Hook<br/>Physical Interface]
-
-    TC_Eg --> Encap[Encapsulation<br/>VXLAN/Geneve]
-    Encap --> Wire[Physical Transmission]
-
-    style XDP fill:#ffccbc,stroke:#d84315,stroke-width:2px
-    style TC_In fill:#fff9c4,stroke:#f57c00,stroke-width:2px
-    style TC_Eg fill:#c8e6c9,stroke:#388e3c,stroke-width:2px
-    style Drop1 fill:#ffcdd2
-    style Drop2 fill:#ffcdd2
-```
-
-**eBPF Hook Characteristics:**
-
-| Hook           | Kernel Function            | sk_buff Exists? | Purpose                   | Typical Action                                |
-| :------------- | :------------------------- | :-------------- | :------------------------ | :-------------------------------------------- |
-| **XDP**        | Network driver RX          | ❌ No           | Pre-processing, fast drop | `XDP_PASS`, `XDP_DROP`, `XDP_REDIRECT`        |
-| **tc-ingress** | `__netif_receive_skb_core` | ✅ Yes          | Policy enforcement, DNAT  | `TC_ACT_OK`, `TC_ACT_SHOT`, `TC_ACT_REDIRECT` |
-| **tc-egress**  | `dev_queue_xmit`           | ✅ Yes          | Encapsulation, encryption | `TC_ACT_OK`, `TC_ACT_REDIRECT`                |
-
-### Stage 4: VXLAN Encapsulation Deep Dive
-
-**Original Packet (Before Encapsulation):**
-
-```
-+------------------+
-| Ethernet Header  |  14 bytes
-| - Src MAC        |
-| - Dst MAC        |
-| - EtherType      |
-+------------------+
-| IP Header        |  20 bytes
-| - Src: 10.0.1.42 |
-| - Dst: 10.0.2.10 |
-+------------------+
-| TCP Header       |  20 bytes
-| - Src Port: 54321|
-| - Dst Port: 8080 |
-+------------------+
-| HTTP Payload     |  1400 bytes
-+------------------+
-Total: 1454 bytes
-```
-
-**After VXLAN Encapsulation:**
-
-```
-+------------------+
-| Outer Ethernet   |  14 bytes (Node A MAC → Node B MAC)
-+------------------+
-| Outer IP         |  20 bytes (Node A IP → Node B IP)
-+------------------+
-| Outer UDP        |   8 bytes (Src: ephemeral, Dst: 8472)
-+------------------+
-| VXLAN Header     |   8 bytes
-| +--------------+ |
-| | Flags (0x08) | |  1 byte  (VNI valid)
-| | Reserved     | |  3 bytes
-| | VNI (24-bit) | |  3 bytes ← Security Identity encoded here
-| | Reserved     | |  1 byte
-| +--------------+ |
-+------------------+
-| Inner Packet     |  1454 bytes (original packet unchanged)
-+------------------+
-Total: 1504 bytes (50-byte overhead)
-```
-
-**MTU Implications:**
-
-```mermaid
-graph TD
-    Original["Original Packet<br/>1454 bytes"] --> Check{Physical MTU?}
-
-    Check -->|"MTU = 1500<br/>✅ Fits"| Transmit[Transmit]
-    Check -->|"MTU = 1500<br/>❌ Too large (1504)"| Problem[PROBLEM]
-
-    Problem --> Solution1["Solution 1:<br/>Lower Pod MTU to 1450"]
-    Problem --> Solution2["Solution 2:<br/>Increase physical MTU to 1550"]
-    Problem --> Fragment["⚠️ Fragmentation<br/>(Performance hit)"]
-
-    style Problem fill:#ffcdd2
-    style Fragment fill:#fff9c4
-```
-
-### Stage 5: Destination Node Processing
-
-```mermaid
-sequenceDiagram
-    participant Wire as Physical Network
-    participant NIC as Node B NIC
-    participant Kernel as Node B Kernel
-    participant eBPF as eBPF Decap Program
-    participant Pod as Destination Pod
-
-    Wire->>NIC: Receive Packet
-    NIC->>Kernel: DMA to Ring Buffer
-    Kernel->>eBPF: tc-ingress (vxlan interface)
-
-    Note over eBPF: Check VXLAN VNI<br/>Extract Inner Packet
-
-    eBPF->>eBPF: Lookup Endpoint by IP
-    eBPF->>eBPF: Verify Security Identity
-
-    alt Policy Allows
-        eBPF->>Pod: bpf_redirect_peer()
-        Pod->>Pod: recv() syscall
-    else Policy Denies
-        eBPF->>eBPF: Drop + Log Event
-    end
-```
-
-## Failure Modes & Debugging
-
-### Issue 1: MTU Fragmentation
-
-**Symptom:**
-
-```bash
-# Large HTTP requests fail, small requests succeed
-curl http://backend:8080/small  # ✅ Works
-curl http://backend:8080/large  # ❌ Hangs
-```
-
-**Root Cause Detection:**
-
-```bash
-# Check for fragmentation drops
-cilium monitor --type drop | grep -i "fragment"
-
-# Verify MTU settings
-ip link show cilium_vxlan
-# mtu 1450 (should be 50 less than physical)
-```
-
-**Packet Flow with Fragmentation:**
-
-```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart LR
-    Large["1500-byte packet"] --> Encap[VXLAN adds 50 bytes]
-    Encap --> Oversized["1550 bytes<br/>(exceeds MTU)"]
-    Oversized --> Fragment{Fragmentation}
+    direction LR
+    subgraph Meta [Metadata Sources]
+        PL((Pod Labels))
+        NS((Namespace Labels))
+        SL((System Labels))
+    end
 
-    Fragment -->|"DF bit set"| Drop["❌ Drop<br/>ICMP Frag Needed"]
-    Fragment -->|"DF not set"| Split["Split into<br/>2 packets"]
+    subgraph Logic [Identity Derivation Logic]
+        Norm[Normalization & Sorting]
+        Hash{SHA-256 Hash}
+        Alloc[Global Identity Allocation]
+    end
 
-    Split --> Reassembly["Dest must<br/>reassemble"]
-    Reassembly --> Slow["⚠️ Performance<br/>degradation"]
+    subgraph Result [Kernel Datapath Object]
+        ID([Numeric Security Identity])
+    end
 
-    style Oversized fill:#ffcdd2
-    style Slow fill:#fff9c4
+    PL & NS & SL --> Norm
+    Norm --> Hash
+    Hash --> Alloc
+    Alloc --> ID
+
+    style ID fill:#f9f,stroke:#333,stroke-width:2px,color:black
 ```
 
-### Issue 2: veth Pair Corruption
+This figure illustrates how Cilium derives a stable security identity from Kubernetes metadata. Instead of relying on IP addresses, workload intent expressed through labels is converted into a numeric identity that is later consumed directly by the kernel datapath during packet processing.
 
-**Symptom:**
+Once allocated, this identity becomes the sole security primitive used by the datapath.
 
-```bash
-# Pod shows up in endpoint list but unreachable
-cilium endpoint list
-# ID  POD           STATUS
-# 42  frontend-xyz  ready (but actually broken)
-```
+**Identity Resolution During Packet Processing**
+At runtime, Cilium does not look up labels.
+Instead:
 
-**Detection:**
+- a packet enters the kernel
+- the source endpoint is already known
+- the endpoint-to-identity mapping already exists
+- the identity is attached to the packet context
+- policy evaluation begins immediately
 
-```bash
-# Check veth pair state
-ip -n cni-abc123 link show eth0
-# State: DOWN ← Should be UP
+Identity resolution is not a runtime guess. It is a precomputed invariant.
 
-# Check for orphaned interfaces
-ip link show type veth
-# Look for unpaired veth ends
-```
+**Identity Lifecycle and Cluster-Wide Propagation**
+Identities in Cilium are not node-local.
+Cilium maintains a global identity space so that:
 
-### Issue 3: Route Missing
+- the same identity value represents the same workload everywhere
+- policies behave consistently across nodes
+- cross-node traffic can be enforced deterministically
+
+The lifecycle of an identity follows a strict reference-counted model:
+
+- identity allocated when first used
+- reference count increases as endpoints use it
+- identity remains active while referenced
+- garbage collected only when no longer used
+
+Key properties:
+
+- identities are reference counted
+- unused identities are safely garbage collected
+- identities are cached aggressively for fast datapath access
+
+**Identity Churn and Its Effects**
+Identities are more stable than IP addresses, but they are not immutable.
+
+Identity churn occurs when:
+
+- labels change
+- namespaces change
+- deployment strategies modify metadata
+
+During identity changes:
+
+- existing connections remain valid via connection tracking
+- new connections are evaluated against the new identity
+- default-deny semantics are preserved
+- no silent trust expansion occurs
+
+This explains why traffic may briefly behave differently during rollouts without violating security guarantees.
+
+**Common Identity-Driven Misconfigurations**
+
+_Overly Broad Labels_
+
+- **Example:** `app: frontend` used across unrelated workloads.
+- **Effect:**
+  - identities collapse
+  - policies unintentionally match more endpoints
+  - access scope widens silently
+
+_Inconsistent Labeling Schemes_
+
+- **Example:** Different teams use `role:db` vs `type:db`.
+- **Effect:**
+  - identities fragment
+  - policies appear correct
+  - traffic is denied unexpectedly
+
+_Label Removal During Rollouts_
+
+- **Example:** Labels are temporarily removed during deployment.
+- **Effect:**
+  - identity changes
+  - new connections fail
+  - logs appear empty
+  - security appears broken
+
+**Reality:**
+
+- the identity invariant was preserved
+- the failure originated from an incorrect operator assumption
+
+**Identity and Observability**
+Every observable event in Cilium includes:
+
+- source identity
+- destination identity
+- verdict
+- reason
+
+There is no observability without identity.
+If identity cannot be explained, flows cannot be explained.
+
+**Outcome of This Pillar**
+After completing this pillar, the reader should be able to:
+
+- stop reasoning in terms of IP addresses
+- understand identity as a kernel-level invariant
+- predict policy behavior during cluster churn
+- debug security issues without guesswork
+
+Identity is not configuration. Identity is execution truth.
+
+### 4.2 Pillar 2: Datapath and Networking — How Packets Actually Move
+
+**What This Pillar Establishes**
+This pillar explains where Cilium executes and how packets move once traffic starts flowing. Kubernetes defines intent; Cilium executes behavior.
+
+The goal is to replace configuration-level reasoning with packet-level execution reasoning so readers can predict outcomes, debug failures, and reason about performance without guessing.
+
+If the datapath is misunderstood, policies appear random, observability feels incomplete, and performance tuning becomes unsafe.
+
+**Why Kubernetes Is Not in the Runtime Path**
+Kubernetes operates as a control plane. It declares desired state but does not process packets.
+After objects are created:
+
+- no Kubernetes API logic runs on packet arrival
+- no YAML is consulted at runtime
+- no Service object participates in forwarding
+
+Actual traffic behavior is determined below Kubernetes, inside the Linux kernel.
+
+**Execution Boundary (Critical Concept)**
+Once traffic reaches the node:
+**Everything from this point forward is decided by:**
+
+- kernel hook placement
+- eBPF programs
+- datapath state
+- map lookups
+
+Understanding this boundary is essential.
+
+**Cilium’s Datapath Philosophy**
+Cilium treats networking as a deterministic execution pipeline.
+Key principles:
+
+- packets are the unit of truth
+- execution paths are fixed and bounded
+- complexity lives in data (maps), not branching logic
+- decisions are made once and cached
+
+This design keeps behavior predictable at scale.
+
+**Where Cilium Attaches in the Kernel**
+Cilium programs the kernel at specific hook points.
+Primary attachment points:
+
+- **XDP** (earliest possible hook)
+- **tc ingress / egress** (traffic control layer)
+
+Each hook exists for a reason and serves a distinct role.
+
+_XDP vs tc — Execution Roles_
+Cilium uses XDP selectively and tc for full semantics.
 
 ```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart TD
-    Packet[Packet to 10.0.2.42] --> RouteLookup{ip route get 10.0.2.42}
+    Pack[Packet Arrives on NIC] --> XDP{XDP Hook?}
+    XDP -- Fast Drop --> Drop1[Discard Early]
+    XDP -- Pass --> TC[Traffic Control Ingress]
 
-    RouteLookup -->|"Route found"| Correct["✅ via cilium_host"]
-    RouteLookup -->|"No route"| Wrong["❌ ENETUNREACH"]
-
-    Wrong --> Diagnose["Check:<br/>1. cilium-agent logs<br/>2. Route propagation<br/>3. Node CIDR overlap"]
-
-    style Wrong fill:#ffcdd2
-    style Correct fill:#c8e6c9
-```
-
-## Performance Characteristics
-
-### Latency Breakdown (Nanoseconds)
-
-```mermaid
-graph LR
-    subgraph "Traditional Path (iptables)"
-        T1["send()<br/>200ns"] --> T2["sk_buff<br/>250ns"]
-        T2 --> T3["Routing<br/>100ns"]
-        T3 --> T4["iptables<br/>800ns ⚠️"]
-        T4 --> T5["VXLAN<br/>150ns"]
-        T5 --> T6["Wire<br/>50ns"]
+    subgraph Datapath [Cilium eBPF Datapath]
+        TC --> Parse[Header Parsing]
+        Parse --> ID[Source Identity Lookup]
+        ID --> CT{Conntrack?}
+        CT -- Miss --> Pol[Policy Engine Evaluation]
+        CT -- Hit --> Fwd[Forwarding Logic]
+        Pol -- Deny --> Drop2[Drop w/ Reason Code]
+        Pol -- Allow --> UpdateCT[Update Conntrack Table]
+        UpdateCT --> Fwd
     end
 
-    subgraph "Cilium eBPF Path"
-        C1["send()<br/>200ns"] --> C2["sk_buff<br/>250ns"]
-        C2 --> C3["Routing<br/>100ns"]
-        C3 --> C4["eBPF<br/>120ns ✅"]
-        C4 --> C5["VXLAN<br/>150ns"]
-        C5 --> C6["Wire<br/>50ns"]
-    end
-
-    style T4 fill:#ffcdd2
-    style C4 fill:#c8e6c9
+    Fwd --> Encap{Encapsulation?}
+    Encap -- Yes --> VXLAN[VXLAN/Geneve Header]
+    Encap -- No --> Egress[TC Egress]
+    VXLAN --> Egress
+    Egress --> Net[Network Interface]
 ```
 
-**Total Latency:**
+This figure shows the canonical packet flow through the Cilium datapath. Once a verdict is reached, it is final.
 
-- **iptables path:** ~1550 ns
-- **eBPF path:** ~870 ns
-- **Improvement:** 44% faster
+**Packet Entry and Context Setup**
+When a packet enters at tc:
 
----
+- packet metadata is parsed
+- source endpoint is identified
+- identity is already known
+- execution context is initialized
 
-# Pillar 02: Load Balancing & Performance
+No control-plane lookup occurs here.
 
-## Objective
+**Service Translation Happens Before Policy**
+A common misconception is that policy applies to Service IPs.
+In reality:
 
-Explain Cilium's O(1) load balancing architecture, Maglev consistent hashing, XDP acceleration, and Direct Server Return.
+- service translation happens first
+- backend endpoint is selected
+- policy is evaluated against the real backend identity
 
-## The O(N) Problem
+This explains why:
 
-### iptables Sequential Processing
+- a Service resolves
+- but traffic is still denied
+
+The datapath enforces truth, not abstraction.
 
 ```mermaid
-flowchart TD
-    Packet["Incoming Packet<br/>Dest: 10.96.0.1:80"] --> Start[Start iptables Chain]
-
-    Start --> R1{Rule 1:<br/>Service A?}
-    R1 -->|No| R2{Rule 2:<br/>Service B?}
-    R2 -->|No| R3{Rule 3:<br/>Service C?}
-    R3 -->|No| R4["..."]
-    R4 --> R1000{Rule 1000:<br/>Service XYZ?}
-    R1000 -->|Yes| DNAT[DNAT to Backend]
-
-    style R1000 fill:#ffcdd2
-    Note right of R1000: Must check ALL prior rules
-```
-
-**Scaling Disaster:**
-
-| Services | Rules    | Latency per Packet | Rule Update Time |
-| :------- | :------- | :----------------- | :--------------- |
-| 100      | ~1,000   | 80 µs              | 0.5s             |
-| 1,000    | ~10,000  | 800 µs             | 5s               |
-| 10,000   | ~100,000 | 8000 µs (8ms)      | 50s              |
-
-```mermaid
-xychart-beta
-    title "Latency vs Number of Services"
-    x-axis [100, 1000, 2000, 5000, 10000]
-    y-axis "Latency (microseconds)" 0 --> 10000
-    line "iptables O(N)" [80, 800, 1600, 4000, 8000]
-    line "Cilium O(1)" [12, 12, 12, 12, 12]
-```
-
-## Cilium's Hash Table Architecture
-
-### The Service Map Structure
-
-```mermaid
-graph TB
-    subgraph "User Space (Cilium Agent)"
-        K8s[Kubernetes API] -->|Watch Services| Agent[Cilium Agent]
-        Agent -->|BPF syscall| Kernel
-    end
-
-    subgraph "Kernel Space (eBPF Maps)"
-        ServiceMap["cilium_lb4_services_v2<br/>━━━━━━━━━━━<br/>Key: (VIP, Port, Proto)<br/>Value: Backend List ID"]
-
-        BackendMap["cilium_lb4_backends<br/>━━━━━━━━━━━<br/>Key: Backend ID<br/>Value: (IP, Port, State)"]
-
-        MaglevMap["cilium_lb4_maglev<br/>━━━━━━━━━━━<br/>Key: Hash Index<br/>Value: Backend ID"]
-    end
-
-    Packet[Incoming Packet] -->|1| Hash[Hash Function]
-    Hash -->|2| ServiceMap
-    ServiceMap -->|3| MaglevMap
-    MaglevMap -->|4| BackendMap
-    BackendMap -->|5| DNAT[Rewrite Dest IP/Port]
-
-    style ServiceMap fill:#e3f2fd
-    style BackendMap fill:#fff3e0
-    style MaglevMap fill:#c8e6c9
-```
-
-### Map Entry Examples
-
-**Service Entry:**
-
-```c
-struct lb4_key {
-    __be32 address;    // 10.96.0.1 (ClusterIP)
-    __be16 dport;      // 80
-    __u16  backend_slot; // 0 (primary)
-    __u8   proto;      // IPPROTO_TCP (6)
-    __u8   scope;      // LB_LOOKUP_SCOPE_EXT (0)
-    __u8   pad[2];
-};
-
-struct lb4_service {
-    __u32 backend_id;  // 42 (ID of backend list)
-    __u16 count;       // 3 (number of backends)
-    __u16 rev_nat_index; // 105
-    __u8  flags;       // SVC_FLAG_ROUTABLE
-};
-```
-
-**Backend Entry:**
-
-```c
-struct lb4_backend {
-    __be32 address;    // 10.0.2.42 (Pod IP)
-    __be16 port;       // 8080
-    __u8   proto;      // IPPROTO_TCP
-    __u8   flags;      // BE_STATE_ACTIVE
-};
-```
-
-## Maglev Consistent Hashing
-
-### The Lookup Table
-
-Maglev builds a **large lookup table** (default size: 65,537 entries) that maps hash values to backends.
-
-```mermaid
-graph LR
-    Flow["5-tuple:<br/>(Src IP, Dst IP,<br/>Src Port, Dst Port, Proto)"] -->|Hash| H[Hash Value:<br/>42,103,917]
-
-    H -->|Modulo 65537| Index[Table Index:<br/>42,103]
-
-    Index --> Table{Maglev Table<br/>[65,537 entries]}
-
-    Table --> Entry["table[42,103]<br/>= Backend 2"]
-
-    style Table fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px
-```
-
-### Table Construction Algorithm
-
-```mermaid
-flowchart TD
-    Start[Start] --> Init["Initialize:<br/>• table[65537] = -1<br/>• permutation[i] for each backend"]
-
-    Init --> Fill{Table full?}
-
-    Fill -->|No| Round["For each backend i:<br/>next = permutation[i]"]
-    Round --> Check{table[next]<br/>empty?}
-
-    Check -->|Yes| Assign["table[next] = i<br/>permutation[i]++"]
-    Check -->|No| Skip["permutation[i]++<br/>(skip slot)"]
-
-    Assign --> Fill
-    Skip --> Fill
-
-    Fill -->|Yes| Done[Table Complete]
-
-    style Done fill:#c8e6c9
-```
-
-### Stability During Scaling
-
-```mermaid
+%%{init: {'theme': 'dark'}}%%
 sequenceDiagram
     participant Client
-    participant Table as Maglev Table
-    participant B1 as Backend 1
-    participant B2 as Backend 2
-    participant B3 as Backend 3 (NEW)
+    participant Service as Service VIP
+    participant Backend as Backend Pod
+    participant Policy as Policy Enforcement
 
-    Note over Table: Initial state:<br/>Backends: [B1, B2]
-
-    Client->>Table: Flow hash → index 1000
-    Table->>B1: Assigned to B1
-
-    Note over B3: Backend 3 added
-    Note over Table: Rebuild table<br/>Backends: [B1, B2, B3]
-
-    Client->>Table: Same flow hash → index 1000
-    Table->>B1: Still B1 (stable!)
-
-    Note over Table: Only ~33% of entries change<br/>Other flows minimally impacted
-```
-
-**Comparison:**
-
-| Load Balancer   | Backend Added   | Connections Reset |
-| :-------------- | :-------------- | :---------------- |
-| **Round Robin** | 1 new (total 3) | ~50%              |
-| **Random**      | 1 new (total 3) | ~67%              |
-| **Maglev**      | 1 new (total 3) | ~10-15%           |
-
-## XDP (eXpress Data Path)
-
-### Execution Timeline
-
-```mermaid
-sequenceDiagram
-    participant NIC as Network Card
-    participant Driver as NIC Driver
-    participant XDP as XDP eBPF Program
-    participant Kernel as Linux Stack
-    participant App as Application
-
-    Note over NIC: Packet arrives
-    NIC->>Driver: DMA to RX ring (50ns)
-
-    rect rgb(200, 230, 201)
-        Note over Driver,XDP: XDP Context
-        Driver->>XDP: Call XDP program (30ns)
-        XDP->>XDP: Parse headers (40ns)
-        XDP->>XDP: Decision logic (50ns)
-    end
-
-    alt XDP_DROP
-        XDP-->>NIC: Drop (no kernel processing!)
-        Note over Kernel: Saved: 500ns+
-    else XDP_PASS
-        XDP->>Kernel: Pass to stack
-        Kernel->>Kernel: Allocate sk_buff (200ns)
-        Kernel->>Kernel: Protocol processing (300ns)
-        Kernel->>App: Deliver (100ns)
+    Client->>Service: Send Packet (Dest: Service IP)
+    Note over Service: DNAT Translation Happens First
+    Service->>Backend: Translate to Backend IP
+    Note right of Backend: Identify Backend Identity
+    Backend->>Policy: Evaluate Policy (Client Identity -> Backend Identity)
+    alt Policy Allows
+        Policy-->>Backend: Packet Accepted
+    else Policy Denies
+        Policy-->>Client: Drop Packet (Policy Denied)
     end
 ```
 
-**Performance Gains:**
+Policies never see virtual addresses. They see identities.
+
+**Connection Tracking and Short-Circuiting**
+Cilium avoids reevaluating every packet.
+For established connections:
+
+- verdict is cached
+- backend selection is skipped
+- policy checks are bypassed
+- packets follow the **fast path**
+
+This keeps steady-state cost low and predictable.
 
 ```mermaid
-xychart-beta
-    title "Packets Dropped per Second (DDoS Mitigation)"
-    x-axis ["iptables", "tc eBPF", "XDP"]
-    y-axis "Million packets/sec" 0 --> 25
-    bar [2, 8, 24]
-```
-
-### XDP Program Example
-
-```c
-SEC("xdp")
-int xdp_drop_syn_flood(struct xdp_md *ctx) {
-    void *data_end = (void *)(long)ctx->data_end;
-    void *data = (void *)(long)ctx->data;
-
-    struct ethhdr *eth = data;
-    if ((void *)(eth + 1) > data_end)
-        return XDP_DROP;
-
-    if (eth->h_proto != htons(ETH_P_IP))
-        return XDP_PASS;
-
-    struct iphdr *ip = data + sizeof(*eth);
-    if ((void *)(ip + 1) > data_end)
-        return XDP_DROP;
-
-    if (ip->protocol != IPPROTO_TCP)
-        return XDP_PASS;
-
-    struct tcphdr *tcp = (void *)ip + (ip->ihl * 4);
-    if ((void *)(tcp + 1) > data_end)
-        return XDP_DROP;
-
-    // Drop SYN flood
-    if (tcp->syn && !tcp->ack) {
-        return XDP_DROP; // ← Packet never enters kernel
-    }
-
-    return XDP_PASS;
-}
-```
-
-## Direct Server Return (DSR)
-
-### The Bottleneck Problem
-
-```mermaid
-sequenceDiagram
-    participant Client as Client<br/>(198.51.100.5)
-    participant LB as Load Balancer Node<br/>(10.0.1.1)
-    participant Backend as Backend Pod<br/>(10.0.2.42)
-
-    Note over Client,Backend: Standard SNAT Mode
-
-    Client->>LB: Request (10 KB)
-    Note over LB: DNAT: 198.51.100.5 → 10.0.2.42
-    LB->>Backend: Forward request
-
-    Backend->>LB: Response (100 MB video) ⚠️
-    Note over LB: SNAT: 10.0.2.42 → 198.51.100.5<br/>Reverse NAT
-    LB->>Client: Response
-
-    rect rgb(255, 205, 210)
-        Note over LB: BOTTLENECK!<br/>All response traffic<br/>flows through LB node
-    end
-```
-
-**Traffic Distribution:**
-
-- **Ingress:** 1 Gbps (requests)
-- **Egress:** 100 Gbps (responses)
-- **Result:** LB node saturated at 10 Gbps NIC limit
-
-### DSR Architecture
-
-```mermaid
-sequenceDiagram
-    participant Client as Client<br/>(198.51.100.5)
-    participant LB as Load Balancer Node<br/>(10.0.1.1)
-    participant Backend as Backend Pod<br/>(10.0.2.42)
-
-    Note over Client,Backend: DSR Mode
-
-    Client->>LB: Request (10 KB)
-    Note over LB: Encode Client IP in<br/>IPIP/Geneve tunnel
-    LB->>Backend: Tunneled request
-
-    Backend->>Backend: Decapsulate,<br/>extract Client IP
-
-    rect rgb(200, 230, 201)
-        Backend->>Client: Response (100 MB) DIRECT!
-        Note over Backend,Client: Response bypasses LB<br/>No bottleneck
-    end
-```
-
-**Packet Structure (DSR):**
-
-```
-Ingress (LB → Backend):
-+------------------+
-| Outer IP         | Src: LB (10.0.1.1)
-|                  | Dst: Backend (10.0.2.42)
-+------------------+
-| IPIP/Geneve      | Encapsulation
-+------------------+
-| Inner IP         | Src: Client (198.51.100.5)
-|                  | Dst: Service VIP (10.96.0.1)
-+------------------+
-| TCP + Payload    |
-+------------------+
-
-Egress (Backend → Client):
-+------------------+
-| IP               | Src: Service VIP (10.96.0.1) ← Source NAT
-|                  | Dst: Client (198.51.100.5)
-+------------------+
-| TCP + Payload    | 100 MB video
-+------------------+
-```
-
-## Performance Benchmarks
-
-### Throughput Comparison
-
-```mermaid
-xychart-beta
-    title "Load Balancer Throughput (Gbps)"
-    x-axis ["10 Services", "100 Services", "1000 Services", "10000 Services"]
-    y-axis "Throughput (Gbps)" 0 --> 100
-    line "kube-proxy (iptables)" [90, 75, 45, 10]
-    line "kube-proxy (IPVS)" [95, 92, 88, 80]
-    line "Cilium (eBPF)" [98, 98, 98, 98]
-```
-
-### Latency (P99)
-
-| Scenario            | iptables  | Cilium eBPF | Improvement |
-| :------------------ | :-------- | :---------- | :---------- |
-| **100 Services**    | 120 µs    | 25 µs       | 79%         |
-| **1,000 Services**  | 1,200 µs  | 28 µs       | 98%         |
-| **10,000 Services** | 12,000 µs | 30 µs       | 99.7%       |
-
----
-
-# Pillar 03: Microsegmentation with Identity-Based Security
-
-## Objective
-
-Replace IP-based firewalling with label-based identities, enabling zero-trust networking that scales with cluster dynamics.
-
-## The IP Problem Visualized
-
-### Traditional Firewall Rule Lifecycle
-
-```mermaid
-sequenceDiagram
-    participant Ops as Operator
-    participant FW as Firewall
-    participant Pod as Pod (frontend)
-
-    Note over Ops: Deploy frontend
-    Ops->>Pod: Create Pod
-    Pod->>Pod: Gets IP 10.0.1.42
-
-    Ops->>FW: Add rule:<br/>10.0.1.42 → 10.0.2.10:3306
-
-    rect rgb(255, 235, 238)
-        Note over Pod: Rolling update!
-        Pod->>Pod: Terminate (IP freed)
-        Pod->>Pod: New Pod: IP 10.0.1.99
-
-        Note over FW: ❌ Rule still references<br/>old IP 10.0.1.42
-        Note over Pod: ❌ New Pod blocked<br/>(wrong IP in firewall)
-    end
-
-    Ops->>FW: Manual fix:<br/>10.0.1.99 → 10.0.2.10:3306
-
-    Note over Ops,FW: Multiply by 1000 Pods...<br/>Operational nightmare
-```
-
-### IP Churn Statistics
-
-```mermaid
-xychart-beta
-    title "Pod IP Changes per Hour (Production Cluster)"
-    x-axis ["Normal", "Deploy", "Node Drain", "Autoscale"]
-    y-axis "IP Reassignments" 0 --> 1000
-    bar [50, 300, 800, 600]
-```
-
-## Cilium's Identity Model
-
-### Identity Derivation Flow
-
-```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart TD
-    Pod[Pod Created] --> Extract[Extract Labels]
-
-    Extract --> Labels["Labels:<br/>• app=frontend<br/>• version=v2<br/>• env=production<br/>• tier=web"]
-
-    Labels --> Sort[Sort Labels<br/>Alphabetically]
-
-    Sort --> Hash["SHA256 Hash<br/>(first 32 bits)"]
-
-    Hash --> Collision{Collision?}
-
-    Collision -->|No| Assign["Assign Identity:<br/>ID = 5042"]
-    Collision -->|Yes| Increment["Increment:<br/>ID = 5043"]
-
-    Assign --> Store[(Identity Database<br/>KV Store)]
-    Increment --> Store
-
-    Store --> Propagate["Propagate to<br/>All Nodes"]
-
-    style Assign fill:#c8e6c9
-    style Store fill:#e3f2fd
+    Pack[Packet] --> CT{Conntrack Entry?}
+    CT -- Yes (Hit) --> Fast[Fast Path: No Policy Re-eval]
+    CT -- No (Miss) --> Slow[Slow Path: Full Policy Lookup]
+    Slow --> Verdict{Allow?}
+    Verdict -- Yes --> CreateCT[Create/Update CT Entry]
+    CreateCT --> Fast
+    Verdict -- No --> Drop[Drop Packet]
 ```
 
-### Identity Database Structure
+Performance issues often arise when traffic cannot stay on the fast path.
 
-```c
-// Cilium internal structure
-struct identity {
-    uint32_t id;              // 5042
-    uint32_t ref_count;       // Number of endpoints with this ID
-    uint64_t labels_hash;     // SHA256(sorted labels)
-    struct label_array labels; // Actual labels
-};
+**Observability Hooks in the Datapath**
+Observability is embedded at decision boundaries, not added later.
+Signals are emitted when:
 
-// Example label array
-labels = [
-    "k8s:app=frontend",
-    "k8s:env=production",
-    "k8s:io.kubernetes.pod.namespace=default",
-    "k8s:version=v2"
-]
-```
+- backend selection occurs
+- policy allows or denies
+- packets are dropped
+- encryption boundaries are crossed
 
-### Reserved Identities
+These signals reflect exact runtime behavior.
 
-| ID  | Name        | Description                         |
-| :-- | :---------- | :---------------------------------- |
-| 0   | Unknown     | Uninitialized/error state           |
-| 1   | Host        | The Kubernetes node itself          |
-| 2   | World       | External traffic (internet)         |
-| 3   | Unmanaged   | Pods not managed by Cilium          |
-| 4   | Health      | Health check endpoints              |
-| 5   | Init        | Endpoints being initialized         |
-| 6   | Remote Node | Remote cluster nodes (Cluster Mesh) |
+**Why Logs Are Often Empty**
+Many failures occur:
 
-## Policy Enforcement Architecture
+- before applications see traffic
+- before sockets exist
+- before userspace logs can trigger
 
-### The Policy Map
+If a packet is dropped in tc:
+
+- the application never knows
+- logs remain empty
+- retries appear as timeouts
+
+This is expected behavior in a kernel-first system.
+
+**Common Datapath Misinterpretations**
+
+_“Policy Looks Correct but Traffic Fails”_
+
+- **Reality:**
+  - policy evaluated against backend identity
+  - not service abstraction
+
+_“Nothing Appears in Logs”_
+
+- **Reality:**
+  - packet dropped before application layer
+
+_“Performance Degraded After Scaling”_
+
+- **Reality:**
+  - increased slow-path frequency
+  - conntrack churn
+  - backend instability
+
+**Relationship to Other Pillars**
+This pillar feeds directly into:
+
+- **Pillar 3 (Policy Enforcement):** Policy executes inside this datapath
+- **Pillar 5 (Observability):** Signals are emitted here
+- **Pillar 6 (Performance):** Cost is determined by this execution path
+
+Without understanding the datapath, higher-level reasoning collapses.
+
+**Outcome of This Pillar**
+After completing this pillar, the reader should be able to:
+
+- trace packet execution end-to-end
+- identify where decisions are made
+- understand why failures occur silently
+- reason about performance using execution paths
+
+The datapath is not an implementation detail. It is the system.
+
+### 4.3 Pillar 3: Policy Enforcement — Zero-Trust Decisions in the Datapath
+
+**What This Pillar Establishes**
+This pillar explains where, when, and how traffic is allowed or denied in Cilium.
+Cilium does not treat policy as a configuration artifact. It treats policy as a runtime execution constraint enforced per packet, directly inside the kernel datapath.
+
+The goal of this pillar is to replace rule-based thinking with decision-path reasoning so operators understand why traffic is allowed or dropped, not just what rules exist.
+
+If policy execution is misunderstood, security appears inconsistent and debugging becomes guesswork.
+
+**Why Traditional Network Policy Models Fail**
+Conventional Kubernetes network policy thinking assumes:
+
+- rules are evaluated against IPs
+- enforcement happens at a logical boundary
+- policy behavior can be inferred from YAML
+
+These assumptions do not hold in Cilium.
+
+In Cilium:
+
+- IP addresses are not security primitives
+- policy is enforced at packet processing time
+- YAML never participates in runtime execution
+
+Policy enforcement is a kernel execution problem, not a configuration problem.
+
+**Zero-Trust as an Execution Model**
+Cilium implements identity-based zero-trust networking.
+Zero-trust in Cilium means:
+
+- no implicit trust between workloads
+- every connection is explicitly evaluated
+- allow decisions must be proven
+- missing rules fail closed
+
+This is not a high-level philosophy. It is enforced mechanically in the datapath.
+
+**Policy Definition vs Policy Execution**
+Policy objects exist only in the control plane.
+At runtime:
+
+- labels are already resolved
+- identities are already assigned
+- policies are already compiled
+- maps already contain allow rules
+
+The datapath never reads YAML. It performs constant-time lookups against precomputed policy state.
 
 ```mermaid
-graph TB
-    subgraph "Control Plane (cilium-agent)"
-        NP[NetworkPolicy YAML] --> Parser[Policy Parser]
-        Parser --> Compiler[Policy Compiler]
-        Compiler --> MapUpdate[BPF Map Update]
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    subgraph Control[Control Plane]
+        YAML[NetworkPolicy YAML] --> CiliumAgent
+        CiliumAgent --> MapUpdates
     end
 
-    subgraph "Data Plane (Kernel eBPF)"
-        MapUpdate --> PolicyMap["cilium_policy_<endpoint><br/>━━━━━━━━━━━<br/>Key: (Identity, Port, Proto)<br/>Value: ALLOW/DENY"]
-
-        Packet[Incoming Packet] --> ExtractID[Extract Source ID]
-        ExtractID --> Lookup{Lookup in Policy Map}
-
-        Lookup -->|Match Found| Allow[Allow + Forward]
-        Lookup -->|No Match| Deny[Deny + Drop]
+    subgraph Data[Datapath Execution]
+        MapUpdates -.-> Map[(Policy BPF Map)]
+        Packet --> Lookup[Map Lookup]
+        Map --> Lookup
+        Lookup --> Decision{Allow/Deny}
     end
 
-    Allow --> Metrics[Update Metrics]
-    Deny --> Log[Log to Hubble]
-
-    style PolicyMap fill:#fff3e0,stroke:#f57c00,stroke-width:3px
-    style Allow fill:#c8e6c9
-    style Deny fill:#ffcdd2
+    style Control fill:#333,stroke:#666,stroke-dasharray: 5 5
+    style Data fill:#222,stroke:#fff
 ```
 
-### Policy Verdict Logic (eBPF Pseudo-code)
+Once traffic reaches the kernel, policy behavior is fixed and deterministic.
 
-```c
-SEC("to-container")
-int handle_ingress(struct __sk_buff *skb) {
-    // Step 1: Extract source identity from packet
-    __u32 src_identity = extract_src_identity(skb);
-    __u32 dst_identity = get_local_identity(skb);
+**Ingress and Egress Are Enforced Independently**
+Cilium evaluates policy in two directions:
 
-    // Step 2: Extract L4 info
-    __u16 dport = get_dest_port(skb);
-    __u8 proto = get_protocol(skb);
+- **egress:** traffic leaving a workload
+- **ingress:** traffic entering a workload
 
-    // Step 3: Build policy key
-    struct policy_key key = {
-        .sec_label = src_identity,
-        .dport = dport,
-        .protocol = proto,
-        .egress = 0, // Ingress direction
-    };
-
-    // Step 4: Lookup in policy map (O(1) hash lookup)
-    struct policy_entry *entry =
-        bpf_map_lookup_elem(&POLICY_MAP, &key);
-
-    if (entry && entry->deny == 0) {
-        // ALLOW: Increment counters
-        __sync_fetch_and_add(&entry->packets, 1);
-        __sync_fetch_and_add(&entry->bytes, skb->len);
-        return TC_ACT_OK; // ← Forward packet
-    }
-
-    // DENY: Log event and drop
-    send_policy_verdict_notify(skb, src_identity,
-                               dst_identity,
-                               POLICY_DENIED);
-    return TC_ACT_SHOT; // ← Drop packet
-}
-```
-
-### Policy Decision Tree
+A connection is permitted only if **both directions** allow it.
+This prevents accidental trust expansion when only one side is restricted.
 
 ```mermaid
-flowchart TD
-    Start[Packet Arrives] --> Extract[Extract IDs]
-
-    Extract --> Selected{Is destination<br/>selected by<br/>any policy?}
-
-    Selected -->|No| DefaultAllow[Default: ALLOW<br/>✅ Forward]
-    Selected -->|Yes| DefaultDeny[Default: DENY]
-
-    DefaultDeny --> IngressCheck{Check Ingress<br/>Policies}
-
-    IngressCheck -->|Match Found| Allow1[ALLOW ✅]
-    IngressCheck -->|No Match| EgressCheck{Check Egress<br/>Policies}
-
-    EgressCheck -->|Match Found| Allow2[ALLOW ✅]
-    EgressCheck -->|No Match| FinalDeny[DENY ❌<br/>Drop + Log]
-
-    style DefaultAllow fill:#c8e6c9
-    style Allow1 fill:#c8e6c9
-    style Allow2 fill:#c8e6c9
-    style FinalDeny fill:#ffcdd2
-```
-
-## Layer 7 (HTTP/gRPC) Policies
-
-### The Two-Path Architecture
-
-```mermaid
-graph TB
-    subgraph "Packet Arrival"
-        Packet[HTTP Request] --> Decision{L7 Policy<br/>Required?}
-    end
-
-    subgraph "Fast Path (L3/L4 Only)"
-        Decision -->|No| eBPF1[eBPF Policy Check]
-        eBPF1 --> Forward[Forward to Pod]
-    end
-
-    subgraph "Slow Path (L7 Inspection)"
-        Decision -->|Yes| Redirect[bpf_redirect_proxy]
-        Redirect --> Envoy[Envoy Proxy<br/>Userspace]
-
-        Envoy --> Parse[Parse HTTP Headers]
-        Parse --> Match{Match L7 Rule}
-
-        Match -->|Allow| Inject[Re-inject to Kernel]
-        Match -->|Deny| Drop403[Return HTTP 403]
-
-        Inject --> eBPF2[eBPF Bypass]
-        eBPF2 --> ForwardFinal[Forward to Pod]
-    end
-
-    style eBPF1 fill:#c8e6c9
-    style Envoy fill:#fff3e0
-    style Drop403 fill:#ffcdd2
-```
-
-### L7 Policy Example
-
-```yaml
-apiVersion: cilium.io/v2
-kind: CiliumNetworkPolicy
-metadata:
-  name: api-l7-policy
-spec:
-  endpointSelector:
-    matchLabels:
-      app: api-server
-  ingress:
-    - fromEndpoints:
-        - matchLabels:
-            app: frontend
-      toPorts:
-        - ports:
-            - port: "8080"
-              protocol: TCP
-          rules:
-            http:
-              - method: "GET"
-                path: "/api/v1/users"
-              - method: "GET"
-                path: "/api/v1/products"
-            # POST to /api/v1/admin is implicitly DENIED
-```
-
-### L7 Performance Impact
-
-```mermaid
-xychart-beta
-    title "Request Latency by Policy Type"
-    x-axis ["L3/L4 Only", "L7 HTTP", "L7 + TLS Inspection"]
-    y-axis "P99 Latency (milliseconds)" 0 --> 15
-    bar [0.5, 3.2, 12.8]
-```
-
-## Advanced: DNS-Based Policies
-
-### The Problem
-
-```yaml
-# ❌ BAD: Hardcoded IP (AWS RDS endpoint changes)
-egress:
-  - toCIDR:
-      - 52.12.34.56/32
-```
-
-### The Solution
-
-```yaml
-# ✅ GOOD: DNS-based policy
-egress:
-  - toFQDNs:
-      - matchPattern: "*.amazonaws.com"
-```
-
-### DNS Flow
-
-```mermaid
+%%{init: {'theme': 'dark'}}%%
 sequenceDiagram
-    participant Pod as Frontend Pod
-    participant DNS as CoreDNS
-    participant Cilium as Cilium Agent
-    participant DB as Database (RDS)
+    participant Source as Source Pod
+    participant Dest as Dest Pod
+    participant Pol as Policy Engine
 
-    Pod->>DNS: Resolve mydb.us-east-1.rds.amazonaws.com
-    DNS-->>Pod: Answer: 52.12.34.56
-
-    rect rgb(200, 230, 201)
-        Note over Cilium: Intercept DNS Response
-        Cilium->>Cilium: Cache: mydb.amazonaws.com → 52.12.34.56
-        Cilium->>Cilium: Update egress policy map:<br/>Allow Pod → 52.12.34.56
+    Note over Source, Dest: Connection Initiation (SYN)
+    Source->>Pol: Egress Check (Source -> Dest)
+    alt Egress Denied
+        Pol--xSource: Drop (Egress Deny)
+    else Egress Allowed
+        Pol->>Dest: Packet Forwarded
+        Dest->>Pol: Ingress Check (Source -> Dest)
+        alt Ingress Denied
+            Pol--xDest: Drop (Ingress Deny)
+        else Ingress Allowed
+            Pol->>Dest: Deliver Packet
+        end
     end
-
-    Pod->>DB: Connect to 52.12.34.56:3306
-    Note over Cilium: ✅ Allowed (dynamic IP learned)
 ```
 
-## Common Misconfigurations
+Both checks must pass. There is no implicit symmetry.
 
-### Issue 1: Implicit DNS Block
+**Default-Deny Semantics**
+Once a workload is selected by any policy:
 
-```yaml
-# This policy BLOCKS all traffic except port 8080
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-backend
-spec:
-  podSelector:
-    matchLabels:
-      app: backend
-  policyTypes:
-    - Egress
-  egress:
-    - to:
-        - podSelector:
-            matchLabels:
-              app: database
-      ports:
-        - port: 3306
-```
+- all traffic is denied by default
+- only explicitly allowed flows are permitted
 
-**Problem:** DNS is UDP port 53 - now blocked!
+This ensures:
+
+- missing rules fail closed
+- new workloads do not inherit trust
+- security posture degrades safely
+
+Unexpected drops are usually missing intent, not bugs.
+
+**Runtime Policy Evaluation Order**
+Policy evaluation follows a strict, invariant order.
 
 ```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    Start[Packet Context] --> L3[L3 Policy (IP/CIDR)]
+    L3 -- Allow --> L4[L4 Policy (Port/Proto)]
+    L3 -- Deny --> Drop[Drop Packet]
+    L4 -- Allow --> L7{L7 Rules Exist?}
+    L4 -- Deny --> Drop
+    L7 -- Yes --> Proxy[L7 Proxy Redirect]
+    L7 -- No --> Allow[Allow System]
+    Proxy --> L7Check[L7 Policy (HTTP/DNS)]
+    L7Check -- Allow --> Allow
+    L7Check -- Deny --> Drop
+```
+
+This order never changes across features or configurations.
+Understanding this sequence is critical for debugging.
+
+**Stateful Enforcement with Connection Tracking**
+Policy enforcement is stateful.
+For new connections:
+
+- full policy evaluation occurs
+- verdict is recorded
+  For established connections:
+- verdict is reused
+- policy is not reevaluated
+- fast path is taken
+
+This balances correctness with performance.
+
+**Interaction with Service Load Balancing**
+Policy enforcement happens **after** backend selection.
+This means:
+
+- policies apply to the selected backend
+- not to the Service IP
+- backend identity determines authorization
+
+This explains a common confusion:
+
+- Services resolve correctly
+- traffic is still denied
+  Policy is working as designed.
+
+**Layer 7 Policy and Conditional Redirection**
+When application-level inspection is required:
+
+- traffic is conditionally redirected
+- protocol parsing occurs
+- enforcement happens before reinjection
+
+Only traffic that explicitly requires L7 inspection leaves the kernel fast path.
+All other traffic remains kernel-resident.
+
+**Identity Stability and Policy Consistency**
+Policies bind to identities, not individual pods.
+During:
+
+- rolling updates
+- scaling events
+- node failures
+  Policy behavior remains stable as long as labels remain consistent.
+  This is why labeling strategy matters more than rule count.
+
+**Common Policy-Driven Failure Modes**
+
+_Overly Generic Labels_
+
+- **Effect:**
+  - identities collapse
+  - policies unintentionally widen scope
+
+_Asymmetric Policy Coverage_
+
+- Ingress rules exist, egress rules do not.
+- **Effect:**
+  - connections initiate
+  - responses are dropped
+  - failures appear intermittent
+
+_Identity Churn During Deployments_
+
+- Labels change mid-rollout.
+- **Effect:**
+  - new connections denied
+  - old connections survive
+  - behavior appears inconsistent
+
+**Reality:**
+
+- execution invariants are preserved
+
+**Observability of Policy Decisions**
+Every policy decision produces structured signals:
+
+- allow or deny verdict
+- drop reason
+- source and destination identities
+- direction and protocol
+
+This allows operators to debug policy behavior from execution truth, not assumptions.
+
+**Relationship to Other Pillars**
+This pillar depends on:
+
+- **Pillar 1 (Identity):** Policy has no meaning without identity
+- **Pillar 2 (Datapath):** Enforcement happens inside the datapath
+
+It feeds directly into:
+
+- **Pillar 5 (Observability)**
+- **Pillar 6 (Performance)**
+
+Policy is not isolated. It is part of the shared execution pipeline.
+
+**Outcome of This Pillar**
+After completing this pillar, the reader should be able to:
+
+- reason about allow and deny decisions without IPs
+- predict behavior during deployments
+- diagnose drops using identity context
+- design policies that fail safely
+
+Policy in Cilium is not a rule system. It is a deterministic execution mechanism.
+
+### 4.4 Pillar 4: Layer 7 Visibility Without Sidecars
+
+**Understanding Application Intent Inside the Datapath**
+
+**What This Pillar Establishes**
+This pillar explains how Cilium understands application-level intent without inserting sidecars, proxies, or agents.
+Traditional Kubernetes observability and security tools require:
+
+- sidecars
+- userspace proxies
+- application instrumentation
+
+Cilium does not.
+Instead, it selectively elevates packets from the kernel datapath to Layer 7 inspection only when required, and only for traffic explicitly governed by L7 policies.
+
+The goal of this pillar is to show that:
+
+- Layer 7 visibility is not always-on
+- it is policy-driven and conditional
+- and it does not replace the kernel datapath â€” it augments it
+
+If this pillar is misunderstood, users assume Cilium behaves like a service mesh. It does not.
+
+**Why Sidecar-Based L7 Models Break Down**
+Sidecar architectures introduce fundamental problems:
+
+- every request takes extra network hops
+- traffic is copied into userspace unconditionally
+- failure domains multiply
+- performance becomes application-dependent
+- debugging spans multiple abstraction layers
+
+Most importantly: sidecars intercept traffic even when no L7 decision is needed.
+This makes L7 visibility expensive by default.
+
+Cilium inverts this model.
+
+**Ciliumâ€™s L7 Design Philosophy**
+Cilium treats Layer 7 inspection as:
+
+- exceptional, not default
+- policy-triggered, not unconditional
+- surgically scoped, not global
+
+Key principles:
+
+- kernel datapath remains authoritative
+- packets stay in-kernel unless inspection is explicitly required
+- L7 logic never replaces L3/L4 enforcement
+- visibility is added without altering application topology
+
+**When L7 Inspection Is Triggered**
+Layer 7 inspection is activated only if:
+
+- a policy explicitly requires it
+- protocol is supported and identifiable
+- packet matches L7 policy scope
+
+Otherwise:
+
+- traffic remains entirely in the kernel fast path
+
+This preserves performance and predictability.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart TD
+    Traffic[Traffic Flow] --> L4Pol{L7 Rule Present?}
+    L4Pol -- No --> Kernel[Kernel Fast Path (High Perf)]
+    L4Pol -- Yes --> User[Userspace Proxy (Envoy/DNS)]
+
+    subgraph KernelSpace [Kernel Space]
+        Kernel
+    end
+
+    subgraph UserSpace [User Space]
+        User
+    end
+
+    User --> Verdict{L7 Verdict}
+    Verdict -- Allow --> Reinject[Re-inject to Kernel]
+    Verdict -- Deny --> Drop[Drop]
+    Reinject --> Kernel
+```
+
+Layer 7 inspection is not a replacement path. It is a temporary detour.
+
+**L7 Enforcement Does Not Bypass Policy**
+A critical invariant:
+**Layer 7 inspection happens only after Layer 3/4 policy allows the flow.**
+
+This ensures:
+
+- policy intent is preserved
+- application inspection does not widen access
+- L7 cannot override L4 denial
+
+If L4 denies traffic, L7 is never invoked.
+
+**What Cilium Actually Inspects at Layer 7**
+Cilium does not parse arbitrary application logic.
+It extracts:
+
+- protocol metadata
+- request method or verb
+- headers or paths (when supported)
+- request context tied to identity
+
+It does not:
+
+- modify application payloads
+- act as a generic proxy
+- maintain application state
+
+The purpose is decision context, not application rewriting.
+
+**Supported Protocol Scope**
+Layer 7 visibility applies only to:
+
+- well-defined protocols
+- with deterministic parsing rules
+
+Unsupported or encrypted protocols:
+
+- remain L3/L4 only
+- are not intercepted
+- continue through kernel fast path
+
+This avoids unreliable inspection.
+
+**Performance Boundaries of L7 Inspection**
+Layer 7 inspection introduces cost.
+Cilium contains this cost by:
+
+- limiting redirection scope
+- avoiding per-packet inspection
+- caching verdicts where possible
+- reinjecting traffic efficiently
+
+Only traffic that must be inspected pays the price.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph LR
+    subgraph LowCost [Low Cost Zone]
+        P1[L3 Checks]
+        P2[L4 Checks]
+        P3[Conntrack]
+    end
+
+    subgraph HighCost [High Cost Zone (Optional)]
+        P4[L7 Parsing]
+        P5[L7 Pattern Matching]
+    end
+
+    P3 --> D{Policy Requires L7?}
+    D -- No --> E[Forward]
+    D -- Yes --> P4
+    P4 --> P5
+    P5 --> E
+
+    style LowCost fill:#003300,stroke:#0f0
+    style HighCost fill:#330000,stroke:#f00
+```
+
+This keeps tail latency predictable.
+
+**L7 Visibility and Observability**
+L7 signals are correlated, not standalone.
+Each L7 event is enriched with:
+
+- source identity
+- destination identity
+- policy context
+- verdict
+- request metadata
+
+This allows operators to answer:
+
+- which workload made this request
+- why it was allowed or denied
+- which rule applied
+
+Without packet capture.
+
+**Common Misunderstandings**
+
+_â€œCilium Is a Service Meshâ€_
+
+- **False.**
+  - no sidecars
+  - no traffic hijacking
+  - no mandatory proxies
+  - Cilium is datapath-first, not proxy-first.
+
+_â€œL7 Is Always Onâ€_
+
+- **False.**
+  - L7 is activated only by policy
+  - most traffic never leaves kernel space
+
+_â€œEncrypted Traffic Canâ€™t Be Observedâ€_
+
+- **Partially false.**
+  - payloads are encrypted
+  - behavior and intent are still observable
+  - metadata remains visible
+  - Encryption hides data, not execution.
+
+**Relationship to Other Pillars**
+This pillar depends on:
+
+- **Pillar 1 (Identity):** L7 decisions are identity-aware
+- **Pillar 3 (Policy):** L7 is an extension, not a replacement
+
+It feeds into:
+
+- **Pillar 5 (Observability)**
+- **Pillar 6 (Performance)**
+
+Layer 7 is a controlled amplification of earlier primitives.
+
+**Outcome of This Pillar**
+After completing this pillar, the reader should be able to:
+
+- understand when L7 inspection occurs
+- explain why most traffic never leaves the kernel
+- reason about L7 cost and scope
+- avoid sidecar-based mental models
+
+Layer 7 visibility in Cilium is not about control. It is about precise intent awareness without architectural tax.
+
+### 4.5 Pillar 5: Observability and Flow Semantics
+
+**Making Datapath Decisions Visible**
+
+**What This Pillar Establishes**
+This pillar explains how Cilium exposes the truth of what the datapath actually did, not what operators assume happened.
+Traditional observability in Kubernetes focuses on:
+
+- application logs
+- metrics after failures
+- reconstructed timelines
+
+Cilium observability operates at decision time, inside the kernel datapath, where traffic is allowed, denied, redirected, or dropped.
+
+The goal of this pillar is to ensure operators can reason about behavior using execution truth, not symptoms.
+If observability is misunderstood, debugging becomes narrative-driven instead of evidence-driven.
+
+**Why Networking Observability Is Uniquely Hard**
+Most networking failures surface far from their cause.
+Typical symptoms:
+
+- application timeouts
+- intermittent failures
+- uneven load distribution
+- partial service reachability
+
+Actual causes often occur:
+
+- before sockets exist
+- before applications see traffic
+- inside kernel execution paths
+
+Traditional tools cannot observe these points.
+Cilium observability exists to close this gap.
+
+**Observability as a Datapath Feature**
+Cilium does not bolt observability onto the system. It builds observability into the datapath itself.
+Key principles:
+
+- signals are emitted at the same execution points as decisions
+- metadata is identical to what enforcement used
+- no post-hoc reconstruction
+- no reliance on application cooperation
+
+Observability reflects what happened, not what was inferred later.
+
+**What Cilium Observes**
+Cilium observes decisions, not raw packets.
+Observed events include:
+
+- service backend selection
+- policy allow or deny verdicts
+- packet drops and reasons
+- forwarding and redirection
+- encryption boundaries
+
+Each event is tied directly to an execution branch in the datapath.
+
+**Flow Semantics: Why Packets Are Not Enough**
+Cilium does not expose raw packet streams.
+It exposes **flows**.
+
+A flow represents:
+
+- a logical communication attempt
+- aggregated across packets
+- enriched with identity and policy context
+
+This allows operators to reason about intent and outcome without drowning in packet noise.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    subgraph Packets [Raw Packet Stream]
+        P1[Syn]
+        P2[Ack]
+        P3[Data]
+        P4[Data]
+        P5[Fin]
+    end
+
+    subgraph Flow [Cilium Flow Log]
+        F1[Flow Event: TCP/80 allow]
+    end
+
+    P1 & P2 & P3 & P4 & P5 -.-> Agg[Aggregation Logic]
+    Agg --> F1
+```
+
+Flows preserve causality while suppressing noise.
+
+**Flow Identity Model**
+Each flow is annotated with:
+
+- source identity
+- destination identity
+- traffic direction
+- protocol and port
+- verdict (allowed or dropped)
+- reason code
+
+This metadata is derived directly from datapath execution, not control-plane state.
+
+**Drop Semantics and Reason Codes**
+When Cilium drops traffic, it records why.
+Drop reasons are explicit execution outcomes, such as:
+
+- policy denied
+- identity unknown
+- no service backend available
+- invalid packet state
+- encryption failure
+
+These reasons map one-to-one with datapath decision branches.
+There is no generic â€œnetwork errorâ€.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+pie title Drop Reasons Distribution
+    "Policy Denied" : 40
+    "Stale Endpoint" : 20
+    "Authentication Required" : 15
+    "Encryption Error" : 10
+    "Invalid Header" : 15
+```
+
+This makes drops explainable instead of mysterious.
+
+**Observability Without Packet Capture**
+Packet capture:
+
+- copies payloads
+- introduces overhead
+- lacks semantic context
+- raises security concerns
+
+Cilium avoids this by emitting:
+
+- decision metadata
+- identity context
+- policy information
+
+This provides higher diagnostic value with lower operational risk.
+
+**Real-Time Visibility, Not Postmortems**
+Cilium observability operates in real time.
+Operators can:
+
+- observe traffic as it flows
+- validate policy changes immediately
+- detect failures as they occur
+
+There is no need to replay incidents to understand what happened.
+
+**Policy Decision Visibility**
+Every policy decision is observable.
+For each evaluated flow, Cilium can surface:
+
+- which rule matched
+- whether the verdict was cached
+- which identities were involved
+- which direction was enforced
+
+Security behavior becomes transparent, not implicit.
+
+**Service and Load-Balancing Visibility**
+Cilium exposes:
+
+- which backend was selected
+- whether Maglev hashing was used
+- whether conntrack influenced routing
+- whether traffic followed fast or slow path
+
+This allows operators to diagnose:
+
+- uneven traffic distribution
+- backend saturation
+- routing instability
+
+without guessing.
+
+**Observability and Encryption**
+Even when traffic is encrypted:
+
+- payloads are hidden
+- behavior is still visible
+- identities and decisions remain observable
+
+Encryption hides data, not execution.
+This prevents secure clusters from becoming opaque.
+
+**Signal Volume and Performance Discipline**
+Observability is designed to be:
+
+- selective
+- structured
+- bounded
+
+Cilium avoids:
+
+- per-packet logging
+- redundant signals
+- uncontrolled event storms
+
+Signals are emitted only at meaningful decision boundaries.
+
+**Debugging from the Correct Layer**
+Instead of asking:
+_â€œWhy is my application failing?â€_
+
+Operators can ask:
+
+- was the packet dropped?
+- where was it dropped?
+- which identity caused the decision?
+- which rule or map entry applied?
+
+Debugging shifts from trial-and-error to execution reasoning.
+
+**Failure Patterns Made Visible**
+Certain patterns become obvious when viewed as flows:
+
+- asymmetric drops â†’ missing egress policy
+- repeated identical drops â†’ misconfiguration
+- frequent backend changes â†’ service churn
+
+These patterns are invisible in traditional logs.
+
+**Observability as a Design Constraint**
+Cilium treats observability as a requirement, not an afterthought.
+Every new datapath decision must:
+
+- be observable
+- emit a reason
+- expose identity context
+
+This keeps the system debuggable as complexity grows.
+
+**Relationship to Other Pillars**
+This pillar depends on:
+
+- **Pillar 1 (Identity):** No identity, no meaningful observability
+- **Pillar 2 (Datapath):** Signals come from execution paths
+- **Pillar 3 (Policy):** Verdicts are policy outcomes
+
+It feeds directly into:
+
+- **Pillar 6 (Performance)**
+- **Pillar 8 (Failure Modes)**
+
+Observability connects intent to outcome.
+
+**Outcome of This Pillar**
+After completing this pillar, the reader should be able to:
+
+- trace datapath decisions without packet capture
+- explain drops using reason codes
+- correlate behavior with policy and identity
+- debug networking issues using execution truth
+
+Observability in Cilium is not monitoring. It is a direct window into kernel-level decision making.
+
+### 4.6 Pillar 6: Performance and eBPF Efficiency
+
+**Understanding the Real Cost of Datapath Decisions**
+
+**What This Pillar Establishes**
+This pillar explains why Cilium performs the way it does, not by quoting benchmarks, but by exposing the execution cost model of the datapath.
+Performance issues in production rarely appear as obvious throughput drops. They surface as:
+
+- tail latency spikes
+- uneven CPU utilization
+- unpredictable behavior during churn
+
+Ciliumâ€™s performance characteristics are a direct result of kernel execution constraints, eBPF verifier rules, and datapath design decisions.
+
+If performance is misunderstood, operators disable features blindly and destabilize the system.
+
+**Performance Is an Execution Property**
+Cilium executes logic directly in the Linux kernel using eBPF.
+Unlike userspace programs:
+
+- execution must be bounded
+- memory access must be explicit
+- instruction paths must be verifiable
+
+Every packet follows a finite, deterministic instruction path.
+Performance is therefore governed by:
+
+- instruction count per packet
+- number of map lookups
+- fast-path vs slow-path frequency
+- cache locality
+
+Understanding performance means understanding what executes per packet.
+
+**The eBPF Cost Model**
+eBPF programs are compiled into kernel instructions and verified for safety.
+Two constraints dominate performance:
+
+1. **Instruction Count**
+   - each conditional branch adds cost
+   - deep nesting is discouraged
+
+2. **Verifier Predictability**
+   - loops must be bounded
+   - execution paths must be analyzable
+
+Cilium minimizes branching and pushes complexity into data structures.
+
+**Maps as the Primary Abstraction**
+Cilium relies heavily on eBPF maps.
+Maps are used for:
+
+- identity resolution
+- policy enforcement
+- service backend lookup
+- connection tracking
+- observability counters
+
+Each map lookup has a fixed, predictable cost.
+Cilium prefers: **multiple constant-time lookups over complex conditional logic**.
+This keeps per-packet cost stable as clusters grow.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    Total[Total Packet Cost] --> Base[Base Cost: Parsing]
+    Total --> ID[Identity Lookup: 1 Map Op]
+    Total --> Pol[Policy Eval: 1 Map Op]
+    Total --> Fwd[Forwarding: 1 FIB Op]
+
+    style ID fill:#333399
+    style Pol fill:#333399
+    style Fwd fill:#333399
+```
+
+**Fast Path vs Slow Path Execution**
+Not all packets are equal.
+Cilium distinguishes between:
+
+**Fast Path**
+
+- established connections
+- cached policy verdicts
+- stable backend selection
+
+**Slow Path**
+
+- new connections
+- identity changes
+- policy updates
+- first packets of flows
+
+The system is optimized so:
+
+- slow path is rare
+- fast path dominates steady state
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+pie title Execution Path Frequency
+    "Fast Path (Cached)" : 95
+    "Slow Path (Setup)" : 5
+```
+
+Most performance regressions come from slow-path amplification, not baseline inefficiency.
+
+**Connection Tracking as a Performance Primitive**
+Connection tracking is not just correctness logic.
+It is a performance accelerator.
+Once a verdict is cached:
+
+- repeated policy evaluation is skipped
+- backend selection is reused
+- routing becomes constant-cost
+
+Performance issues arise when:
+
+- connections churn rapidly
+- identities change frequently
+- traffic patterns prevent cache reuse
+
+**Policy Complexity and Performance**
+Policy complexity affects performance indirectly.
+Per-packet cost remains bounded.
+However:
+
+- large identity sets increase map sizes
+- broad selectors increase cache churn
+- frequent policy updates invalidate state
+
+This explains why:
+
+- performance degrades during deployments
+- steady-state traffic remains fast
+
+**Load Balancing and Cost Stability**
+Service load balancing cost is:
+
+- constant-time
+- independent of number of services
+- independent of number of backends
+
+Once a backend is selected:
+
+- conntrack bypasses re-selection
+- routing becomes cheaper
+
+Performance problems usually stem from:
+
+- frequent backend changes
+- unstable hashing inputs
+- traffic patterns with many short-lived flows
+
+**Encryption and CPU Cost**
+Encryption introduces unavoidable CPU overhead.
+Cilium contains this cost by:
+
+- encrypting only node-to-node traffic
+- executing encryption in kernel space
+- avoiding userspace context switches
+
+Encryption cost scales with **traffic volume**, not with **cluster size**.
+Encryption-related performance issues typically indicate:
+
+- CPU saturation
+- lack of hardware acceleration
+- MTU misconfiguration
+
+**Cache Locality and NUMA Effects**
+At scale, memory behavior matters.
+Cilium benefits from:
+
+- stable execution paths
+- repeated map access
+- limited working set size
+
+On multi-socket systems:
+
+- NUMA effects may appear
+- remote memory access increases latency
+
+This is why Cilium avoids centralized datapath components.
+
+**Understanding Tail Latency**
+Most real complaints are about tail latency.
+Tail latency increases when:
+
+- packets fall off fast path
+- cache misses occur
+- slow-path execution spikes
+
+Cilium bounds tail latency by:
+
+- limiting instruction depth
+- avoiding unbounded loops
+- preventing rule explosion
+
+**Why Disabling Features Often Backfires**
+Disabling features blindly:
+
+- increases slow-path frequency
+- destabilizes conntrack behavior
+- removes observability needed for tuning
+
+Performance tuning in Cilium is about **controlling execution paths**, not reducing feature count.
+
+**Relationship to Other Pillars**
+This pillar depends on:
+
+- **Pillar 2 (Datapath)**
+- **Pillar 3 (Policy)**
+- **Pillar 5 (Observability)**
+
+It feeds directly into:
+
+- **Pillar 7 (Scalability)**
+- **Pillar 8 (Failure Modes)**
+
+Performance is a cross-cutting concern.
+
+**Outcome of This Pillar**
+After completing this pillar, the reader should be able to:
+
+- reason about cost per packet
+- distinguish slow-path from steady-state cost
+- diagnose performance regressions during churn
+- avoid unsafe optimizations
+
+Performance in Cilium is not about speed. It is about predictability under load.
+
+### 4.7 Pillar 7: Scalability and Multi-Cluster Behavior
+
+**How Cilium Preserves Identity, Policy, and Performance as Systems Grow**
+
+**What This Pillar Establishes**
+This pillar explains what changes when Cilium scales â€” not just in size, but in topology.
+Cilium is designed so that:
+
+- adding more workloads
+- adding more nodes
+- adding more clusters
+
+does not change the core execution model.
+Instead of introducing new abstractions at scale, Cilium extends the same datapath, identity, and policy primitives across larger scopes.
+
+If scalability is misunderstood, operators assume new layers are required. In Cilium, scale is handled by composition, not reinvention.
+
+**Why Scale Breaks Traditional Networking Models**
+Traditional Kubernetes networking assumes:
+
+- a single cluster
+- a single trust domain
+- centrally coordinated state
+- IP-based addressing
+
+As systems grow, these assumptions fail.
+At scale:
+
+- Pod CIDRs collide
+- Services overlap
+- Policies become ambiguous
+- Central load balancers become bottlenecks
+- Gateways turn into failure domains
+
+Most systems â€œsolveâ€ this by adding:
+
+- NAT layers
+- service meshes
+- centralized gateways
+
+Cilium does not.
+
+**Ciliumâ€™s Scalability Philosophy**
+Cilium scales by preserving three invariants:
+
+1. **Identity remains the security primitive**
+2. **The datapath remains direct and distributed**
+3. **Decisions remain node-local at execution time**
+
+No global packet brokers. No mandatory gateways. No centralized policy engines.
+
+**Scaling Within a Single Cluster**
+Inside one cluster, scaling primarily affects:
+
+- number of endpoints
+- identity cardinality
+- policy map size
+- conntrack state
+
+What does not change:
+
+- instruction path length
+- per-packet decision logic
+- execution order
+
+This is why Ciliumâ€™s datapath cost does not grow with cluster size.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+xychart-beta
+    title "Execution Cost vs Cluster Size"
+    x-axis [10 Nodes, 100 Nodes, 1000 Nodes]
+    y-axis "Per-Packet CPU Cost" 0 --> 100
+    line [20, 20, 20]
+```
+
+Scale increases data volume, not execution complexity.
+
+**Identity Stability at Scale**
+Identity stability is the cornerstone of scalability.
+At scale:
+
+- many pods share identities
+- identities are reused aggressively
+- policies target identities, not endpoints
+
+This prevents:
+
+- rule explosion
+- per-pod policy evaluation
+- linear growth in enforcement logic
+
+Identity aggregation is what keeps policy scalable.
+
+**Policy Distribution Without Centralization**
+Policy compilation happens once and is distributed.
+At runtime:
+
+- each node enforces policy independently
+- no cross-node coordination is required
+- no control-plane round-trips occur
+
+This eliminates:
+
+- bottlenecks
+- synchronization delays
+- global locks
+
+Failures remain local, not systemic.
+
+**From Single-Cluster to Multi-Cluster**
+Multi-cluster is not a different mode of operation. It is an extension of the same primitives.
+The problem multi-cluster introduces:
+
+- multiple control planes
+- overlapping address spaces
+- independent failure domains
+
+Cilium addresses this by extending identity, not IPs.
+
+**Cluster Mesh: Extending the Identity Space**
+Cilium uses Cluster Mesh to synchronize only what is necessary.
+What is shared:
+
+- security identities
+- service backend information (for global services)
+- minimal endpoint metadata
+
+What is not shared:
+
+- Kubernetes objects
+- pod lifecycle events
+- control-plane state
+
+Clusters remain independent, but participate in a shared identity universe.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart LR
-    Pod[Backend Pod] -->|DNS Query<br/>UDP:53| DNS[CoreDNS]
-    DNS -.->|❌ BLOCKED| Pod
+    subgraph C1 [Cluster 1]
+        API1[K8s API]
+        Etcd1[(Etcd)]
+        Agent1[Cilium Agent]
+    end
 
-    Pod -->|Can't resolve<br/>database.svc| Error[Error: No such host]
+    subgraph C2 [Cluster 2]
+        API2[K8s API]
+        Etcd2[(Etcd)]
+        Agent2[Cilium Agent]
+    end
 
-    style DNS fill:#ffcdd2
-    style Error fill:#ffcdd2
+    Agent1 <--> Agent2
+    Etcd1 -.-> Agent1
+    Etcd2 -.-> Agent2
+
+    linkStyle 0 stroke-width:4px,fill:none,stroke:green
 ```
 
-**Fix:**
+There is no merged control plane.
 
-```yaml
-egress:
-  # Allow DNS
-  - to:
-      - namespaceSelector:
-          matchLabels:
-            name: kube-system
-        podSelector:
-          matchLabels:
-            k8s-app: kube-dns
-    ports:
-      - port: 53
-        protocol: UDP
-  # Allow database connection
-  - to:
-      - podSelector:
-          matchLabels:
-            app: database
-    ports:
-      - port: 3306
-```
+**Global Identity Consistency**
+When Cluster Mesh is enabled:
 
-### Issue 2: Label Drift
+- the same label set yields the same identity across clusters
+- policies written once apply everywhere
+- workload movement does not require policy duplication
+
+This enables statements like:
+_â€œfrontend can talk to backendâ€_ to remain true regardless of cluster boundaries.
+
+**Cross-Cluster Service Behavior**
+Cilium distinguishes between:
+
+- cluster-local services
+- global services
+
+For global services:
+
+- backend information is merged
+- load balancing happens locally
+- routing decides whether backend is local or remote
+
+There is no global load balancer.
+Each node decides independently using shared state.
+
+**Datapath Behavior Across Clusters**
+From the datapathâ€™s perspective:
+
+- cross-cluster traffic is just traffic
+
+Differences appear only in:
+
+- endpoint resolution
+- encapsulation boundaries
+- encryption scope
+
+Policy, identity, and observability remain unchanged.
+
+**Trust Boundaries and Explicit Assumptions**
+Multi-cluster introduces implicit trust decisions.
+Cilium makes these explicit:
+
+- clusters trust each otherâ€™s identity assignments
+- encryption protects data in transit, not intent
+- compromised clusters can affect others
+
+These are design trade-offs, not hidden behavior.
+
+**Failure Modes at Scale**
+This pillar explicitly documents failure realities:
+
+- temporary identity propagation delays
+- backend staleness during cluster disconnects
+- brief routing blackholes during churn
+- delayed policy convergence
+
+These are bounded, observable, and explainable.
+Understanding them prevents misdiagnosis.
+
+**Why This Pillar Comes Late**
+Multi-cluster behavior only makes sense if:
+
+- identity is understood
+- policy execution is clear
+- observability is trusted
+
+Otherwise:
+
+- cross-cluster security appears broken
+- routing seems unpredictable
+- failures are blamed on â€œthe meshâ€
+
+This pillar reinforces earlier concepts at larger scope.
+
+**Outcome of This Pillar**
+After completing this pillar, the reader should be able to:
+
+- reason about scale without reverting to IP thinking
+- understand how identities remain consistent across clusters
+- predict policy behavior in multi-cluster setups
+- diagnose cross-cluster failures correctly
+
+Scalability in Cilium is not a special feature. It is the natural extension of its execution model.
+
+### 4.8 Pillar 8: Failure Modes and Operational Debugging
+
+**Tracing Failures Through Execution, Not Symptoms**
+
+**What This Pillar Establishes**
+This pillar is the closure of the entire 8 Pillars framework.
+All previous pillars explain how Cilium:
+
+- derives identity
+- processes packets
+- enforces policy
+- exposes observability
+- maintains performance
+- scales across clusters
+
+This pillar answers the final, practical question:
+**When something breaks in production, how do I find the exact reason without guessing?**
+
+Cilium failures are rarely visible at the application layer. They occur inside the kernel datapath, often before applications, logs, or metrics are involved.
+This pillar establishes an execution-first debugging model that maps symptoms to precise failure points.
+
+**Why Cilium Failures Feel Invisible**
+Most operators debug in this order:
+
+1. Check application logs
+2. Restart pods
+3. Modify YAML
+4. Retry
+
+This fails in Cilium because many failures happen before any of these layers exist.
+Where failures actually occur:
+
+- before sockets are created
+- before traffic reaches the application
+- inside tc or XDP hooks
+- during identity, policy, or routing decisions
+
+Silence is not a bug. Silence is a property of kernel-level enforcement.
+
+**The Mental Shift Required for Debugging**
+Traditional question:
+_â€œWhich configuration is wrong?â€_
+
+Cilium question:
+_â€œAt which execution stage did the packet stop?â€_
+
+Once this is known, the root cause becomes obvious.
+
+**The Unified Execution Pipeline**
+Every packet processed by Cilium follows the same execution path. Failures can occur only at these stages.
 
 ```mermaid
-sequenceDiagram
-    participant Dev as Developer
-    participant Deploy as Deployment
-    participant Policy as NetworkPolicy
-    participant Cilium as Cilium
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    Start((Packet Start)) --> NIC[NIC RX]
+    NIC --> XDP[XDP: Drop/Pass]
+    XDP --> TC[TC Ingress: Policy & Route]
+    TC --> App[Application Socket]
 
-    Dev->>Deploy: Update label:<br/>app=frontend-v2
-    Deploy->>Deploy: Pods recreated with new label
-
-    Note over Policy: Policy still selects:<br/>app=frontend (OLD)
-
-    Policy->>Cilium: No pods match selector
-    Cilium->>Cilium: Identity 5042 has zero endpoints
-
-    rect rgb(255, 205, 210)
-        Note over Deploy: ❌ NEW Pods have<br/>DEFAULT ALLOW<br/>(No policy applies!)
-    end
+    style XDP fill:#550000,stroke:#f00
+    style TC fill:#550000,stroke:#f00
 ```
 
----
+Every real failure maps to exactly one box above. Debugging is now finite.
 
-# Pillar 04: Network Security & Encryption
+**Failure Class 1: Identity-Related Failures**
+_What the Operator Sees_
 
-## Objective
+- traffic denied unexpectedly
+- policies appear correct
+- no application logs
 
-Implement transparent node-to-node encryption, understand WireGuard vs IPsec trade-offs, and secure inter-cluster traffic.
+_What Actually Happened_
 
-## Threat Model
-
-### Attack Vectors in Kubernetes
+- identity not resolved yet
+- identity changed during rollout
+- labels did not match policy intent
 
 ```mermaid
-graph TB
-    subgraph "Attack Surface"
-        Node1[Node A] -.->|Unencrypted<br/>VXLAN| Network[Physical Network]
-        Network -.->|Unencrypted<br/>VXLAN| Node2[Node B]
-
-        Attacker[👤 Attacker] -->|Packet Capture| Network
-    end
-
-    Attacker -->|Steal| Creds[Database Credentials]
-    Attacker -->|Steal| JWT[JWT Tokens]
-    Attacker -->|Steal| PII[Customer PII]
-
-    style Network fill:#ffcdd2
-    style Attacker fill:#000,color:#fff
-```
-
-### Compliance Requirements
-
-| Standard    | Requirement                        | Cilium Feature            |
-| :---------- | :--------------------------------- | :------------------------ |
-| **PCI-DSS** | Encrypt cardholder data in transit | WireGuard/IPsec           |
-| **HIPAA**   | Protect PHI over networks          | Node-to-node encryption   |
-| **SOC 2**   | Cryptographic protection           | Transparent encryption    |
-| **GDPR**    | Secure personal data transfers     | Cluster Mesh + encryption |
-
-## WireGuard Integration
-
-### Architecture
-
-```mermaid
-graph LR
-    subgraph "Node A"
-        PodA[Pod 10.0.1.10] --> Route1[Routing Decision]
-        Route1 --> Check1{Dest remote?}
-        Check1 -->|Yes| WG1[cilium_wg0<br/>WireGuard Interface]
-        WG1 -->|Encrypt| NIC1[eth0]
-    end
-
-    subgraph "Physical Network"
-        NIC1 <-->|Encrypted Traffic| NIC2[eth0]
-    end
-
-    subgraph "Node B"
-        NIC2 --> WG2[cilium_wg0]
-        WG2 -->|Decrypt| Route2[Routing Decision]
-        Route2 --> PodB[Pod 10.0.2.20]
-    end
-
-    style WG1 fill:#fff9c4,stroke:#f57c00,stroke-width:3px
-    style WG2 fill:#fff9c4,stroke:#f57c00,stroke-width:3px
-```
-
-### Packet Transformation
-
-**Before Encryption:**
-
-```
-+------------------+
-| Ethernet         | Node A MAC → Node B MAC
-+------------------+
-| IP               | Node A IP → Node B IP
-+------------------+
-| UDP (VXLAN)      | Port 8472
-+------------------+
-| VXLAN Header     | VNI = Security ID
-+------------------+
-| Inner Packet     |
-| - IP: Pod A → Pod B
-| - TCP/Payload    | ← PLAINTEXT (vulnerable!)
-+------------------+
-```
-
-**After WireGuard Encryption:**
-
-```
-+------------------+
-| Ethernet         | Node A MAC → Node B MAC
-+------------------+
-| IP               | Node A IP → Node B IP
-+------------------+
-| UDP (WireGuard)  | Port 51820
-+------------------+
-| WireGuard Header |
-| - Type: Data (4) |
-| - Receiver Index |
-| - Counter        |
-+------------------+
-| ENCRYPTED PAYLOAD (ChaCha20-Poly1305)
-| ┌────────────────────────────────────┐
-| │ Original VXLAN + Inner Packet      │
-| │ (Entire payload encrypted)         │
-| └────────────────────────────────────┘
-+------------------+
-| Auth Tag (16 bytes) | Poly1305 MAC
-+------------------+
-```
-
-### Key Management
-
-```mermaid
-sequenceDiagram
-    participant Agent1 as Node A (cilium-agent)
-    participant K8s as Kubernetes Secret
-    participant Agent2 as Node B (cilium-agent)
-
-    Note over Agent1: Startup: Generate keypair
-    Agent1->>Agent1: wg genkey → private_a
-    Agent1->>Agent1: echo private_a | wg pubkey → public_a
-
-    Agent1->>K8s: Store Secret:<br/>cilium-wg-key-a<br/>public_key: public_a
-
-    Agent2->>K8s: Watch: cilium-wg-key-*
-    K8s-->>Agent2: Notify: New key from Node A
-
-    Agent2->>Agent2: Configure peer:<br/>wg set cilium_wg0 peer public_a
-
-    rect rgb(255, 243, 224)
-        Note over Agent1: After 24 hours
-        Agent1->>Agent1: Rotate: Generate new keypair
-        Agent1->>K8s: Update Secret
-        K8s-->>Agent2: Propagate
-        Agent2->>Agent2: Update peer config
-        Note over Agent1,Agent2: Seamless rotation<br/>(both keys valid during transition)
-    end
-```
-
-### WireGuard Configuration
-
-```bash
-# View WireGuard interface
-wg show cilium_wg0
-
-# Output:
-interface: cilium_wg0
-  public key: AbC123...
-  private key: (hidden)
-  listening port: 51820
-
-peer: XyZ789...
-  endpoint: 192.168.1.42:51820
-  allowed ips: 10.0.0.0/8
-  latest handshake: 57 seconds ago
-  transfer: 1.2 GiB received, 800 MiB sent
-  persistent keepalive: every 25 seconds
-```
-
-## IPsec Alternative
-
-### Comparison Matrix
-
-| Feature                      | WireGuard           | IPsec (ESP)          |
-| :--------------------------- | :------------------ | :------------------- |
-| **Performance**              | ~10 Gbps            | ~5 Gbps              |
-| **Kernel support**           | Linux 5.6+          | All versions         |
-| **Configuration complexity** | Low                 | High                 |
-| **Key exchange**             | Static (Curve25519) | Dynamic (IKEv2)      |
-| **Packet overhead**          | 60 bytes            | 80+ bytes (ESP + AH) |
-| **CPU usage (encrypt 1GB)**  | 0.8 cores           | 1.5 cores            |
-| **FIPS 140-2**               | ❌ No               | ✅ Yes               |
-
-### IPsec Packet Structure
-
-```
-+------------------+
-| Ethernet         |
-+------------------+
-| IP (Outer)       | Node A → Node B
-+------------------+
-| ESP Header       |
-| - SPI (4 bytes)  | Security Parameter Index
-| - Seq (4 bytes)  | Replay protection
-+------------------+
-| IV (16 bytes)    | Initialization Vector
-+------------------+
-| ENCRYPTED:       |
-| ┌──────────────┐ |
-| │ IP (Inner)   │ | Pod A → Pod B
-| │ TCP/Payload  │ |
-| │ ESP Trailer  │ | Padding + Pad Length
-| └──────────────┘ |
-+------------------+
-| ESP Auth (12-16) | HMAC-SHA256
-+------------------+
-```
-
-## Encryption Performance Impact
-
-### Throughput
-
-```mermaid
-xychart-beta
-    title "Network Throughput (Pod-to-Pod, Different Nodes)"
-    x-axis ["No Encryption", "WireGuard", "IPsec-GCM", "IPsec-SHA256"]
-    y-axis "Gbps" 0 --> 100
-    bar [98, 92, 85, 78]
-```
-
-### CPU Overhead
-
-```mermaid
-xychart-beta
-    title "CPU Cores Used (1 Gbps Encrypted Traffic)"
-    x-axis ["No Encryption", "WireGuard", "IPsec"]
-    y-axis "CPU Cores" 0 --> 2
-    bar [0.2, 0.9, 1.6]
-```
-
-## Cluster Mesh Security
-
-### Cross-Cluster Encrypted Tunnel
-
-```mermaid
-graph TB
-    subgraph "Cluster A (us-west)"
-        PodA[Pod A] --> NodeA[Node A]
-        NodeA --> WGA[WireGuard]
-    end
-
-    subgraph "VPN / WAN"
-        WGA <-->|Encrypted Tunnel| WGB[WireGuard]
-    end
-
-    subgraph "Cluster B (eu-central)"
-        WGB --> NodeB[Node B]
-        NodeB --> PodB[Pod B]
-    end
-
-    style WGA fill:#fff9c4
-    style WGB fill:#fff9c4
-```
-
----
-
-# Pillar 05: Observability with Hubble
-
-## Objective
-
-Extract L3-L7 network visibility from the eBPF datapath without performance degradation.
-
-## The Observability Gap
-
-### Traditional Tools
-
-```mermaid
-graph LR
-    subgraph "Traditional Approach"
-        tcpdump[tcpdump] -->|Output| PCAP[PCAP File<br/>❌ No K8s context]
-        PCAP -->|Manual| Correlate[Correlate with<br/>kubectl get pods]
-        Correlate -->|Hours later| Answer[Maybe find cause]
-    end
-
-    subgraph "Cilium Hubble"
-        eBPF[eBPF Datapath] -->|Real-time| Hubble[Hubble]
-        Hubble -->|Instant| Context["Flow with context:<br/>✅ Pod names<br/>✅ Labels<br/>✅ Drop reason"]
-    end
-
-    style PCAP fill:#ffcdd2
-    style Context fill:#c8e6c9
-```
-
-## Hubble Architecture
-
-### Complete Data Flow
-
-```mermaid
-graph TB
-    subgraph "Kernel Space"
-        Packet[Network Packet] --> eBPF1[eBPF Program<br/>tc-ingress]
-        eBPF1 --> Process[Packet Processing]
-        Process --> eBPF2[eBPF Program<br/>tc-egress]
-
-        eBPF1 -.->|notify| RingBuf[(Perf Ring Buffer)]
-        eBPF2 -.->|notify| RingBuf
-        Process -.->|policy verdict| RingBuf
-    end
-
-    subgraph "User Space - Node Local"
-        RingBuf -->|perf_event_read| Observer[Hubble Observer]
-        Observer -->|Enrich| K8s[K8s API Cache<br/>Pod/Service Metadata]
-        Observer -->|gRPC Server| LocalAPI[Local API :4244]
-    end
-
-    subgraph "User Space - Cluster Wide"
-        LocalAPI -->|gRPC Stream| Relay[Hubble Relay]
-        Relay -->|Aggregate| UI[Hubble UI :8081]
-        Relay -->|Query| CLI[Hubble CLI]
-    end
-
-    style RingBuf fill:#fff3e0,stroke:#f57c00,stroke-width:3px
-    style Observer fill:#c8e6c9
-    style Relay fill:#e3f2fd
-```
-
-### Ring Buffer Mechanics
-
-```c
-// eBPF side: Write event
-struct flow_event {
-    __u32 timestamp;
-    __u32 src_identity;
-    __u32 dst_identity;
-    __u16 src_port;
-    __u16 dst_port;
-    __u8  protocol;
-    __u8  verdict; // FORWARDED, DROPPED, ERROR
-};
-
-SEC("to-container")
-int handle_packet(struct __sk_buff *skb) {
-    // ... packet processing ...
-
-    // Notify Hubble
-    struct flow_event event = {
-        .timestamp = bpf_ktime_get_ns(),
-        .src_identity = src_id,
-        .dst_identity = dst_id,
-        .verdict = verdict,
-    };
-
-    bpf_perf_event_output(skb, &EVENTS_MAP,
-                          BPF_F_CURRENT_CPU,
-                          &event, sizeof(event));
-
-    // Continue packet processing (non-blocking!)
-    return verdict;
-}
-```
-
-```go
-// User space: Read events (Hubble Observer)
-func (o *Observer) consumeEvents() {
-    perfReader, _ := perf.NewReader(eventsMap, 4096)
-
-    for {
-        record, err := perfReader.Read()
-        if err != nil {
-            continue
-        }
-
-        var event FlowEvent
-        binary.Read(bytes.NewReader(record.RawSample),
-                    binary.LittleEndian, &event)
-
-        // Enrich with K8s metadata
-        flow := o.enrichFlow(event)
-
-        // Stream to gRPC clients
-        o.notifyObservers(flow)
-    }
-}
-```
-
-## Flow Event Structure
-
-### L3/L4 Flow (JSON)
-
-```json
-{
-  "time": "2024-02-10T04:30:15.123456Z",
-  "verdict": "FORWARDED",
-  "IP": {
-    "source": "10.0.1.42",
-    "destination": "10.0.2.99",
-    "ipVersion": "IPv4"
-  },
-  "l4": {
-    "TCP": {
-      "source_port": 54321,
-      "destination_port": 8080,
-      "flags": {
-        "SYN": true
-      }
-    }
-  },
-  "source": {
-    "ID": 5042,
-    "identity": 5042,
-    "namespace": "production",
-    "labels": ["k8s:app=frontend", "k8s:version=v2"],
-    "pod_name": "frontend-7d4b6c-xkz9w"
-  },
-  "destination": {
-    "ID": 5043,
-    "identity": 5043,
-    "namespace": "production",
-    "labels": ["k8s:app=backend"],
-    "pod_name": "backend-9f8a2-plm3k"
-  },
-  "Type": "L3_L4",
-  "node_name": "k8s-node-1",
-  "traffic_direction": "INGRESS"
-}
-```
-
-### L7 HTTP Flow
-
-```json
-{
-  "time": "2024-02-10T04:30:15.125Z",
-  "l7": {
-    "type": "REQUEST",
-    "latency_ns": 2300000,
-    "http": {
-      "code": 200,
-      "method": "GET",
-      "url": "/api/v1/users?page=2",
-      "protocol": "HTTP/1.1",
-      "headers": [
-        {
-          "key": "User-Agent",
-          "value": "Mozilla/5.0"
-        },
-        {
-          "key": "Authorization",
-          "value": "[REDACTED]"
-        }
-      ]
-    }
-  },
-  "Summary": "HTTP/1.1 GET /api/v1/users -> 200 OK (2.3ms)"
-}
-```
-
-## Service Dependency Map
-
-### Visualization Logic
-
-```mermaid
-graph LR
-    subgraph "Collected Flows (last 5 min)"
-        F1[frontend → api]
-        F2[api → backend]
-        F3[backend → database]
-        F4[frontend → database]
-    end
-
-    subgraph "Aggregated Map"
-        Frontend[Frontend<br/>ID: 5042] -->|HTTP GET<br/>✅ 1250 req/min| API[API<br/>ID: 5040]
-        API -->|gRPC<br/>✅ 980 req/min| Backend[Backend<br/>ID: 5043]
-        Backend -->|SQL<br/>✅ 450 req/min| DB[(Database<br/>ID: 5044)]
-        Frontend -.->|SQL<br/>❌ DROPPED<br/>Policy denied| DB
-    end
-
-    style Frontend fill:#e3f2fd
-    style API fill:#e3f2fd
-    style Backend fill:#c8e6c9
-    style DB fill:#fff3e0
-```
-
-### UI Example
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ Service Map (Namespace: production)                      │
-├─────────────────────────────────────────────────────────┤
-│                                                           │
-│   [Frontend] ──✅ 1.2k/s──> [API Gateway]               │
-│       │                          │                        │
-│       │                          │                        │
-│       │                          ✅ 980/s                │
-│       │                          │                        │
-│       │                          ▼                        │
-│       │                     [Backend]                     │
-│       │                          │                        │
-│       │                          ✅ 450/s                │
-│       │                          │                        │
-│       ❌ BLOCKED ────────────────▼                       │
-│      (Policy)              [Database]                     │
-│                                                           │
-│  Legend: ✅ Allowed   ❌ Denied                          │
-└─────────────────────────────────────────────────────────┘
-```
-
-## Debugging Workflows
-
-### Workflow 1: "Why is this connection failing?"
-
-```bash
-# Step 1: Observe all drops
-hubble observe --verdict DROPPED
-
-# Output:
-Feb 10 04:30:15: frontend-abc (5042) -> database-xyz (5044)
-policy-verdict:none DROPPED (Policy denied)
-
-# Step 2: Check which policy is responsible
-cilium endpoint get 5043
-# ...
-# Policy enforcement: egress, ingress
-# Ingress policy: default-deny
-
-# Step 3: Review policies
-kubectl get ciliumnetworkpolicies
-```
-
-### Workflow 2: "Which service is slow?"
-
-```bash
-# Query L7 latency
-hubble observe --since 5m --protocol http --http-status 200 \
-  | grep "latency_ns" \
-  | sort -n
-
-# Output (slowest last):
-api -> backend: 2.3ms
-api -> database: 45ms  ← BOTTLENECK
-frontend -> api: 1.1ms
-```
-
----
-
-# Pillar 06: Troubleshooting Kubernetes Networking
-
-## Objective
-
-Provide structured decision trees for isolating failures across DNS, routing, policy, and application layers.
-
-## The Debugging Problem
-
-### Traditional Troubleshooting (Unstructured)
-
-```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart TD
-    Problem[Connection Fails] --> Guess1[Try random kubectl commands]
-    Guess1 --> Guess2[Restart Pod]
-    Guess2 --> Guess3[Check logs]
-    Guess3 --> Guess4[Ask in Slack]
-    Guess4 --> Hours[Hours wasted]
+    Config[Config: Allow 'frontend']
+    Runtime[Runtime: 'frontend' has ID 100]
+    Packet[Packet Source: ID 200 (unknown)]
+    Policy[Policy Check]
 
-    style Hours fill:#ffcdd2
+    Config -.-> Runtime
+    Runtime --> Policy
+    Packet --> Policy
+    Policy -- Mismatch --> Drop[Drop: Identity 200 Denied]
+
+    style Drop fill:#550000,stroke:#f00
 ```
 
-### Cilium's Structured Approach
+Policy did not break. Identity semantics were misunderstood.
+
+**Failure Class 2: Service and Load-Balancing Failures**
+_What the Operator Sees_
+
+- Service DNS resolves
+- some pods reachable, others not
+- retries sometimes succeed
+
+_What Actually Happened_
+
+- backend set outdated
+- conntrack pinned old backend
+- backend removed during churn
 
 ```mermaid
-flowchart TD
-    Problem[Connection Fails] --> Layer{Which Layer?}
-
-    Layer -->|L3| Ping[Can ping by IP?]
-    Layer -->|L4| Port[Can connect to port?]
-    Layer -->|L7| App[Application logic?]
-
-    Ping -->|No| RoutingTools["• ip route get\n• cilium endpoint list\n• Check CIDR overlap"]
-    Ping -->|Yes| DNS[DNS Resolution?]
-
-    DNS -->|No| DNSTools["• nslookup\n• cilium policy get\n• Check CoreDNS"]
-    DNS -->|Yes| Port
-
-    Port -->|No| PolicyTools["• hubble observe --verdict DROPPED\n• cilium monitor -t policy\n• Review NetworkPolicies"]
-    Port -->|Yes| App
-
-    App --> AppTools["• Check app logs\n• Validate service bindings\n• Test with curl/nc"]
-
-    style RoutingTools fill:#fff3e0
-    style DNSTools fill:#fff9c4
-    style PolicyTools fill:#ffcdd2
-    style AppTools fill:#c8e6c9
-```
-
-## Decision Tree (Detailed)
-
-### Level 1: Connectivity Test
-
-```bash
-# From source Pod, test destination
-kubectl exec -it frontend-abc -- ping 10.0.2.99
-
-# Possible outcomes:
-# ✅ SUCCESS → Routing works, proceed to L4 test
-# ❌ FAILURE → Routing issue, see Routing Checklist
-```
-
-### Level 2: Port Connectivity
-
-```bash
-# Test specific port
-kubectl exec -it frontend-abc -- nc -zv 10.0.2.99 8080
-
-# Possible outcomes:
-# ✅ SUCCESS → Port reachable, proceed to L7 test
-# ❌ FAILURE → Policy or firewall, see Policy Checklist
-```
-
-### Level 3: DNS Resolution
-
-```bash
-# Test service name resolution
-kubectl exec -it frontend-abc -- nslookup backend.production.svc.cluster.local
-
-# Possible outcomes:
-# ✅ SUCCESS → DNS works
-# ❌ FAILURE → DNS policy or CoreDNS issue
-```
-
-## Common Issues & Resolution
-
-### Issue 1: DNS Resolution Failure
-
-**Symptom:**
-
-```bash
-kubectl exec -it pod -- curl http://service-name:8080
-# Error: Could not resolve host: service-name
-```
-
-**Root Cause Diagram:**
-
-```mermaid
-flowchart TD
-    DNS[DNS Query] --> Policy{Egress Policy<br/>Allows UDP:53?}
-
-    Policy -->|No| Block[❌ Blocked by Policy]
-    Policy -->|Yes| CoreDNS{CoreDNS<br/>Running?}
-
-    CoreDNS -->|No| NotRunning[❌ CoreDNS Pod Down]
-    CoreDNS -->|Yes| Forward{Service<br/>Exists?}
-
-    Forward -->|No| NoSvc[❌ Service Not Found]
-    Forward -->|Yes| Success[✅ Resolution Success]
-
-    style Block fill:#ffcdd2
-    style NotRunning fill:#ffcdd2
-    style NoSvc fill:#fff9c4
-    style Success fill:#c8e6c9
-```
-
-**Resolution Steps:**
-
-```bash
-# 1. Check if CoreDNS is running
-kubectl get pods -n kube-system -l k8s-app=kube-dns
-
-# 2. Test DNS directly
-kubectl exec -it pod -- nslookup kubernetes.default.svc.cluster.local
-
-# 3. Check DNS policy
-hubble observe --from-pod frontend --to-pod coredns --verdict DROPPED
-
-# 4. Add DNS egress rule if missing
-kubectl apply -f - <<EOF
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: allow-dns
-spec:
-  podSelector: {}
-  policyTypes:
-  - Egress
-  egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-    ports:
-    - protocol: UDP
-      port: 53
-EOF
-```
-
-### Issue 2: Asymmetric Routing
-
-**The Problem:**
-
-```mermaid
+%%{init: {'theme': 'dark'}}%%
 sequenceDiagram
-    participant PodA as Pod A (10.0.1.42)
-    participant Node1 as Node 1
-    participant Node2 as Node 2
-    participant PodB as Pod B (10.0.2.99)
+    participant DNS as K8s DNS
+    participant App as App Pod
+    participant Conntrack
+    participant DeadBackend
 
-    Note over PodA: Send packet to PodB
-    PodA->>Node1: SYN
-    Node1->>Node1: Encapsulate (VXLAN)
-    Node1->>Node2: Tunnel
-    Node2->>PodB: Deliver
-
-    Note over PodB: Reply
-    PodB->>Node2: SYN-ACK
-    Node2->>Node2: ❌ Route via different path
-    Node2->>PodA: Direct (no tunnel)
-
-    Note over PodA: ❌ Connection tracking fails<br/>Source IP unexpected
+    App->>DNS: Resolve Service
+    DNS-->>App: Service IP
+    App->>Conntrack: Send Request
+    Note right of Conntrack: Stale Entry Exists
+    Conntrack->>DeadBackend: Forward (Cached Decision)
+    DeadBackend--xApp: Timeout (Pod Gone)
 ```
 
-**Detection:**
+Kubernetes abstraction succeeded. Datapath execution failed.
 
-```bash
-# Monitor connection tracking
-cilium monitor --type trace | grep "CT:"
+**Failure Class 3: Policy Asymmetry Failures**
+_What the Operator Sees_
 
-# Look for:
-# "CT: No CT entry found" ← Connection tracking miss
-```
+- first request succeeds
+- response fails
+- behavior appears random
 
-**Fix:**
+_What Actually Happened_
 
-Ensure symmetric routing by using consistent encapsulation mode:
-
-```bash
-# Check Cilium configuration
-cilium config view | grep routing-mode
-
-# Should be: tunnel (VXLAN/Geneve)
-# NOT: native (direct routing)
-```
-
-### Issue 3: MTU Black Hole
+- ingress allowed
+- egress denied
+- bidirectional enforcement incomplete
 
 ```mermaid
-sequenceDiagram
-    participant Client as Client Pod
-    participant Node1 as Node 1
-    participant Network as Physical Network<br/>(MTU: 1500)
-    participant Node2 as Node 2
-
-    Client->>Node1: Large Packet (1450 bytes)
-    Note over Node1: Add VXLAN header (+50 bytes)
-    Node1->>Node1: Final size: 1500 bytes ✅
-    Node1->>Network: Transmit
-    Network->>Node2: Deliver
-
-    rect rgb(255, 235, 238)
-        Note over Client: Now send LARGER packet
-        Client->>Node1: Packet (1480 bytes)
-        Note over Node1: Add VXLAN (+50 bytes)
-        Node1->>Node1: Final size: 1530 bytes ❌
-        Node1->>Network: Try to send
-        Note over Network: MTU exceeded!<br/>Packet dropped
-        Network-->>Client: ❌ ICMP Fragmentation Needed
-    end
-```
-
-**Detection & Fix:**
-
-```bash
-# 1. Check current MTU
-ip link show cilium_vxlan
-# mtu 1450 (should be 50 less than physical)
-
-# 2. Monitor drops
-cilium monitor --type drop | grep -i "mtu\|frag"
-
-# 3. Fix Pod MTU
-# Edit CNI config
-cat /etc/cni/net.d/05-cilium.conf
-{
-  "cniVersion": "0.3.1",
-  "name": "cilium",
-  "type": "cilium-cni",
-  "mtu": 1450  ← Adjust this
-}
-```
-
-## Toolbox Reference
-
-### Quick Diagnostic Commands
-
-```bash
-# 1. Check Cilium agent status
-cilium status --verbose
-
-# 2. List all endpoints
-cilium endpoint list
-
-# 3. Get specific endpoint details
-cilium endpoint get <pod-name>
-
-# 4. Monitor all traffic (verbose)
-cilium monitor -v
-
-# 5. Monitor policy verdicts only
-cilium monitor --type policy-verdict
-
-# 6. Watch drops
-cilium monitor --type drop
-
-# 7. Hubble: View denied flows
-hubble observe --verdict DROPPED --last 100
-
-# 8. Hubble: View specific Pod traffic
-hubble observe --from-pod frontend --to-pod backend
-
-# 9. Check identity mappings
-cilium identity list
-
-# 10. Inspect BPF maps
-cilium map list
-cilium map get cilium_policy_12345
-```
-
-### Packet Capture Integration
-
-```bash
-# Capture packets at eBPF level (with context!)
-cilium monitor --type capture
-
-# Traditional tcpdump (for comparison)
-kubectl exec -it pod -- tcpdump -i any -n port 8080
-```
-
----
-
-# Pillar 07: Multi-Cluster Networking (Cluster Mesh)
-
-## Objective
-
-Explain how Cilium connects multiple Kubernetes clusters into a unified network fabric with global services, identity, and policy.
-
-## The Multi-Cluster Challenge
-
-### Without Cluster Mesh
-
-```mermaid
-graph TB
-    subgraph "Cluster A (us-west-1)"
-        PodA1[Pod: frontend]
-        SvcA[Service: backend<br/>10.96.0.10]
-    end
-
-    subgraph "Cluster B (eu-central-1)"
-        PodB1[Pod: backend (Replica)]
-        SvcB[Service: backend<br/>10.96.0.10]
-    end
-
-    PodA1 -.->|❌ Cannot reach| PodB1
-
-    Note1[Problem 1: No cross-cluster routing]
-    Note2[Problem 2: Duplicate Service IPs]
-    Note3[Problem 3: Separate identities]
-
-    style PodA1 fill:#ffcdd2
-    style PodB1 fill:#ffcdd2
-```
-
-### With Cluster Mesh
-
-```mermaid
-graph TB
-    subgraph "Cluster A"
-        PodA[frontend] -->|Global Service| LB{Load Balancer}
-    end
-
-    subgraph "Cluster B"
-        PodB[backend Replica 1]
-    end
-
-    subgraph "Cluster C"
-        PodC[backend Replica 2]
-    end
-
-    LB -->|Direct Pod-to-Pod| PodB
-    LB -->|Direct Pod-to-Pod| PodC
-
-    style LB fill:#c8e6c9
-    style PodB fill:#e3f2fd
-    style PodC fill:#e3f2fd
-```
-
-## Architecture
-
-### Control Plane Synchronization
-
-```mermaid
-graph TB
-    subgraph "Cluster A (us-west)"
-        AgentA[Cilium Agent] -->|Watch| ETCDA[(etcd-A)]
-        PodA[Pods]
-    end
-
-    subgraph "Cluster B (eu-central)"
-        AgentB[Cilium Agent] -->|Watch| ETCDB[(etcd-B)]
-        PodB[Pods]
-    end
-
-    ETCDA <-.->|VPN/TLS Tunnel| ETCDB
-
-    AgentA <-.->|Identity Sync| AgentB
-    AgentA <-.->|Service Sync| AgentB
-    AgentA <-.->|Policy Sync| AgentB
-
-    PodA <-->|Data Plane<br/>Direct Tunnel| PodB
-
-    style AgentA fill:#c8e6c9
-    style AgentB fill:#c8e6c9
-    style ETCDA fill:#fff3e0
-    style ETCDB fill:#fff3e0
-```
-
-### Key Components
-
-| Component        | Purpose                   | Replication              |
-| :--------------- | :------------------------ | :----------------------- |
-| **etcd**         | Store cluster state       | Per-cluster (NOT shared) |
-| **cilium-agent** | Watch local + remote etcd | Per-node                 |
-| **Identities**   | Security labels           | Global (synchronized)    |
-| **Services**     | Service endpoints         | Global (if annotated)    |
-| **Policies**     | Network rules             | Local + cross-cluster    |
-
-## Global Services
-
-### Configuration
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend
-  annotations:
-    io.cilium/global-service: "true"  ← Enable global
-    io.cilium/shared-service: "true"   ← Share endpoints
-spec:
-  selector:
-    app: backend
-  ports:
-  - port: 8080
-    targetPort: 8080
-```
-
-### Endpoint Discovery
-
-```mermaid
-sequenceDiagram
-    participant SvcA as Service (Cluster A)
-    participant AgentA as Agent A
-    participant ETCDB as etcd (Cluster B)
-    participant AgentB as Agent B
-    participant PodB as Backend Pod (Cluster B)
-
-    Note over PodB: Pod starts in Cluster B
-    PodB->>AgentB: Register endpoint
-    AgentB->>ETCDB: Write: backend → 10.0.2.42
-
-    ETCDB-->>AgentA: Watch notification
-    AgentA->>AgentA: Update BPF Service Map:<br/>backend: [local_pods, 10.0.2.42]
-
-    Note over SvcA: Client queries service
-    SvcA->>AgentA: Resolve backend:8080
-    AgentA->>AgentA: Hash + Select:<br/>Options: local OR remote
-    AgentA-->>SvcA: Selected: 10.0.2.42 (remote)
-```
-
-### Load Balancing Behavior
-
-**Locality-Aware:**
-
-```mermaid
+%%{init: {'theme': 'dark'}}%%
 flowchart LR
-    Client[Client Pod<br/>Cluster A] --> LB{Cilium LB}
+    A[Pod A] -->|Request| B[Pod B]
+    B -.->|Response| A
 
-    LB -->|70% traffic| LocalPod[Local Backend<br/>Cluster A]
-    LB -->|30% traffic| RemotePod[Remote Backend<br/>Cluster B]
-
-    Note1[Prefer local to reduce latency]
-    Note2[Fallback to remote if local unavailable]
-
-    style LocalPod fill:#c8e6c9
-    style RemotePod fill:#e3f2fd
-```
-
-**Configuration:**
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend
-  annotations:
-    io.cilium/global-service: "true"
-    io.cilium/service-affinity: "local"  ← Prefer local
-spec:
-  # ...
-```
-
-## Cross-Cluster Identity
-
-### Identity Synchronization
-
-```mermaid
-sequenceDiagram
-    participant PodA as Pod (Cluster A)
-    participant AgentA as Agent A
-    participant KV as KV Store (Shared)
-    participant AgentB as Agent B
-    participant PodB as Pod (Cluster B)
-
-    Note over PodA: Labels: app=backend<br/>env=prod
-    PodA->>AgentA: Register
-    AgentA->>AgentA: Derive Identity: 5042
-    AgentA->>KV: Store: 5042 → {app=backend, env=prod}
-
-    KV-->>AgentB: Replicate identity
-
-    Note over PodB: Same labels:<br/>app=backend, env=prod
-    PodB->>AgentB: Register
-    AgentB->>KV: Query labels
-    KV-->>AgentB: Identity exists: 5042
-    AgentB->>PodB: Assign SAME identity: 5042
-
-    rect rgb(200, 230, 201)
-        Note over PodA,PodB: Both Pods share ID 5042<br/>Policy works across clusters
-    end
-```
-
-### Cross-Cluster Policy
-
-```yaml
-apiVersion: cilium.io/v2
-kind: CiliumNetworkPolicy
-metadata:
-  name: allow-cross-cluster
-spec:
-  endpointSelector:
-    matchLabels:
-      app: frontend
-  egress:
-    - toEndpoints:
-        - matchLabels:
-            app: backend
-            io.cilium.k8s.policy.cluster: cluster-b  ← Cluster-specific
-      ports:
-        - port: "8080"
-```
-
-## Failure Modes
-
-### Scenario 1: Cluster Isolation
-
-```mermaid
-sequenceDiagram
-    participant ClientA as Client (Cluster A)
-    participant SvcA as Service
-    participant PodA as Backend (Cluster A)
-    participant PodB as Backend (Cluster B)
-
-    Note over PodB: Cluster B network failure
-
-    ClientA->>SvcA: Request
-    SvcA->>SvcA: Health check: Cluster B DOWN
-    SvcA->>PodA: Route to Cluster A only
-
-    Note over ClientA,PodA: ✅ Service continues<br/>(degraded capacity)
-```
-
-### Scenario 2: Split Brain Prevention
-
-Cluster Mesh uses **vector clocks** to prevent conflicting updates:
-
-```mermaid
-graph LR
-    A[etcd A: v1] <-.->|Partition| B[etcd B: v1]
-
-    A -->|Write: Identity 100| A2[etcd A: v2]
-    B -->|Write: Identity 100| B2[etcd B: v2]
-
-    A2 <-->|Network restored| B2
-
-    B2 -->|Conflict Detection| Resolve{Vector Clock<br/>Comparison}
-    Resolve -->|A wins| Final[Identity 100 = A's value]
-
-    style Resolve fill:#fff9c4
-    style Final fill:#c8e6c9
-```
-
----
-
-# Pillar 08: Runtime Security Integration
-
-## Objective
-
-Explain how Cilium correlates network events with process execution, enabling runtime threat detection.
-
-## The Correlation Challenge
-
-### Network-Only View (Incomplete)
-
-```bash
-# Hubble shows:
-frontend-abc -> 47.1.2.3:443 (HTTPS) ALLOWED
-```
-
-**Questions:**
-
-- Which process opened this connection?
-- Is this normal behavior for this Pod?
-- Is 47.1.2.3 a legitimate destination?
-
-### Network + Process Context (Complete)
-
-```bash
-# Tetragon + Hubble shows:
-Process: /usr/bin/curl (PID 1337)
-Parent: /bin/bash (Interactive shell)
-Network: 47.1.2.3:443 (Known C2 server!)
-Verdict: ⚠️ ALERT - Suspicious activity
-```
-
-## Tetragon Integration
-
-### Architecture
-
-```mermaid
-graph TB
-    subgraph "Kernel Space"
-        Syscall[System Calls] --> Tracepoint[eBPF Tracepoints]
-        Network[Network Stack] --> Cilium[Cilium eBPF]
-
-        Tracepoint -->|execve, openat| Events1[(Event Buffer)]
-        Cilium -->|connect, sendmsg| Events2[(Event Buffer)]
+    subgraph Policy
+        Rule1[Ingress @ B: Allow A]
+        Rule2[Egress @ A: Block All]
     end
 
-    subgraph "User Space"
-        Events1 --> Tetragon[Tetragon Agent]
-        Events2 --> Tetragon
+    Rule1 -- Allow --> Packet1[Req Allowed]
+    Rule2 -- Deny --> Packet2[Resp Dropped]
 
-        Tetragon --> Correlate[Correlation Engine]
-        Correlate --> Policy[Security Policies]
-
-        Policy -->|Match| Alert[Alert + Block]
-        Policy -->|No Match| Allow[Allow]
-    end
-
-    style Tetragon fill:#c8e6c9
-    style Correlate fill:#fff3e0
-    style Alert fill:#ffcdd2
+    style Packet2 fill:#550000,stroke:#f00
 ```
 
-### Traced Events
+Policy behaved correctly. The operator mental model was incomplete.
 
-| Event Type             | eBPF Hook                              | Information Captured               |
-| :--------------------- | :------------------------------------- | :--------------------------------- |
-| **Process Exec**       | `tracepoint/syscalls/sys_enter_execve` | Binary path, args, parent PID, UID |
-| **File Access**        | `tracepoint/syscalls/sys_enter_openat` | File path, mode, process           |
-| **Network Connection** | `cgroup/connect4`                      | Dest IP, port, process             |
-| **DNS Query**          | `cgroup/sendmsg`                       | Domain name, process               |
+**Failure Class 4: Conntrack and Churn Failures**
+_What the Operator Sees_
 
-### Example: Detecting Reverse Shell
+- failures during deployment
+- issues disappear after retries
+- tail latency spikes
+
+_What Actually Happened_
+
+- identity or backend changed
+- conntrack invalidated
+- slow path executed repeatedly
 
 ```mermaid
-sequenceDiagram
-    participant App as Web App Container
-    participant Bash as /bin/bash
-    participant NC as /bin/nc (netcat)
-    participant Attacker as Attacker (C2 Server)
-
-    Note over App: Exploit triggers
-    App->>Bash: execve("/bin/bash")
-    rect rgb(255, 243, 224)
-        Note over Tetragon: ⚠️ Event 1:<br/>Unexpected process<br/>(bash not in allowed list)
-    end
-
-    Bash->>NC: execve("/bin/nc", "47.1.2.3", "4444")
-    rect rgb(255, 243, 224)
-        Note over Tetragon: ⚠️ Event 2:<br/>Network tool execution
-    end
-
-    NC->>Attacker: connect(47.1.2.3:4444)
-    rect rgb(255, 205, 210)
-        Note over Tetragon: 🚨 ALERT:<br/>Process chain + network<br/>= Reverse shell pattern
-    end
-
-    Tetragon->>NC: SIGKILL (block)
-```
-
-### Policy Example
-
-```yaml
-apiVersion: cilium.io/v1alpha1
-kind: TracingPolicy
-metadata:
-  name: detect-reverse-shell
-spec:
-  kprobes:
-    - call: "sys_execve"
-      selectors:
-        - matchArgs:
-            - index: 0 # Binary path
-              operator: "In"
-              values:
-                - "/bin/bash"
-                - "/bin/sh"
-                - "/usr/bin/nc"
-                - "/usr/bin/ncat"
-      matchActions:
-        - action: Post
-        - action: FollowFD # Track file descriptors
-
-    - call: "tcp_connect"
-      selectors:
-        - matchPIDs:
-            - operator: "In"
-              followForks: true
-              values:
-                - <processes from execve>
-      matchActions:
-        - action: Post
-        - action: Signal
-          argSignal: 9 # SIGKILL
-```
-
-## Use Cases
-
-### 1. Cryptocurrency Mining Detection
-
-```mermaid
-flowchart TD
-    Exec[Process Execution] -->|Detected| Check{Binary Name}
-
-    Check -->|xmrig, minergate| Mine[Mining Software]
-    Check -->|Other| Normal[Normal Process]
-
-    Mine --> Network{Network<br/>Connection}
-    Network -->|pool.*.com:3333| Block[🚨 BLOCK + ALERT]
-
-    style Mine fill:#fff9c4
-    style Block fill:#ffcdd2
-```
-
-### 2. Data Exfiltration
-
-```mermaid
-sequenceDiagram
-    participant App as Application
-    participant File as /etc/passwd
-    participant Curl as curl
-    participant External as External Server
-
-    App->>File: open("/etc/passwd")
-    Note over Tetragon: ⚠️ Sensitive file access
-
-    App->>Curl: execve("curl", "-d", "@/etc/passwd")
-    Note over Tetragon: ⚠️ Network tool + file
-
-    Curl->>External: POST /upload
-
-    rect rgb(255, 205, 210)
-        Note over Tetragon: 🚨 ALERT:<br/>Data exfiltration pattern
-    end
-```
-
----
-
-# Project Timeline (12 Weeks)
-
-## Phase Breakdown
-
-```mermaid
-gantt
-    title LFX Mentorship Timeline
-    dateFormat  YYYY-MM-DD
-    section Foundation
-    Community Onboarding           :a1, 2024-03-01, 7d
-    Documentation Audit            :a2, after a1, 7d
-
-    section Pillar Drafting
-    Pillar 01 & 02 (Networking, LB) :b1, 2024-03-15, 14d
-    Pillar 03 & 04 (Security)       :b2, after b1, 14d
-    Pillar 05 & 06 (Ops)            :b3, after b2, 14d
-    Pillar 07 & 08 (Advanced)       :b4, after b3, 7d
-
-    section Review & Polish
-    Maintainer Review Cycle 1       :c1, after b2, 7d
-    Maintainer Review Cycle 2       :c2, after b4, 7d
-    Final Edits & Cross-linking     :c3, after c2, 7d
-
-    section Delivery
-    Merge to Documentation          :d1, after c3, 7d
-```
-
-## Weekly Breakdown
-
-| Week      | Focus                  | Deliverables                                                                                     | Hours         |
-| :-------- | :--------------------- | :----------------------------------------------------------------------------------------------- | :------------ |
-| **1**     | **Onboarding**         | • Join Slack/GitHub<br/>• Review existing issues<br/>• Sync with mentor                          | 15            |
-| **2**     | **Research**           | • Audit all 500+ doc pages<br/>• Map user complaints to pillars<br/>• Finalize content outline   | 25            |
-| **3-4**   | **Draft: Foundations** | • Pillar 01: Networking (complete)<br/>• Pillar 02: Load Balancing (complete)<br/>• 20+ diagrams | 50            |
-| **5-6**   | **Draft: Security**    | • Pillar 03: Microsegmentation<br/>• Pillar 04: Encryption<br/>• 15+ diagrams                    | 50            |
-| **7-8**   | **Draft: Operations**  | • Pillar 05: Hubble Observability<br/>• Pillar 06: Troubleshooting<br/>• 15+ diagrams            | 50            |
-| **9**     | **Draft: Advanced**    | • Pillar 07: Multi-Cluster<br/>• Pillar 08: Runtime Security<br/>• 10+ diagrams                  | 25            |
-| **10-11** | **Refinement**         | • Address technical feedback<br/>• Fix inaccuracies<br/>• SEO optimization<br/>• Cross-linking   | 40            |
-| **12**    | **Finalization**       | • Final PR polish<br/>• Merge coordination<br/>• Handoff documentation                           | 20            |
-|           | **TOTAL**              | **8 Production-Ready Pillars**                                                                   | **275 hours** |
-
----
-
-# Success Metrics
-
-## Quantitative Metrics
-
-```mermaid
+%%{init: {'theme': 'dark'}}%%
 xychart-beta
-    title "Target Metrics (Post-Mentorship)"
-    x-axis ["Pillar Pages", "Diagrams", "Code Examples", "Maintainer Reviews"]
-    y-axis "Count" 0 --> 80
-    bar [8, 70, 40, 16]
+    title "Latency Spikes During Churn"
+    x-axis [T0, T1 (Deploy), T2 (Recalculate), T3 (Steady)]
+    y-axis "Latency (ms)" 0 --> 50
+    line [5, 45, 30, 5]
 ```
 
-| Metric                    | Target        | Validation Method      |
-| :------------------------ | :------------ | :--------------------- |
-| **Pillar Pages Merged**   | 8             | GitHub PR merge        |
-| **Mermaid Diagrams**      | 70+           | Count in rendered docs |
-| **Code Examples**         | 40+           | Count code blocks      |
-| **Maintainer Approvals**  | 2+ per pillar | GitHub review comments |
-| **Cross-References**      | 50+           | Link analysis          |
-| **Zero Technical Errors** | 100%          | Post-merge issue count |
+This is not randomness. This is expected behavior under churn.
 
-## Qualitative Metrics
+**Failure Class 5: Encryption and MTU Failures**
+_What the Operator Sees_
 
-### User Feedback Analysis
+- same-node traffic works
+- cross-node traffic fails
+- no policy drops visible
 
-**Target:**
+_What Actually Happened_
 
-- 80% of readers report "aha!" moments (survey)
-- 50% reduction in "#cilium help" Slack questions on covered topics (3-month post-merge)
-
-### Community Impact
+- packet grew after encryption
+- exceeded MTU
+- dropped before application
 
 ```mermaid
-graph LR
-    Pillars[Pillar Pages] --> Link1[Linked from<br/>Getting Started]
-    Pillars --> Link2[Linked from<br/>Troubleshooting]
-    Pillars --> Link3[Linked from<br/>API Docs]
+%%{init: {'theme': 'dark'}}%%
+flowchart TD
+    App[App Payload: 1400 bytes] --> Encap[WireGuard Encap]
+    Encap --> Check{Check MTU}
+    Check -- > 1400? --> Drop[Drop: Fragment Needed]
+    Check -- < 1400? --> Send[Send to Network]
 
-    Link1 --> Users[↑ User Confidence]
-    Link2 --> MTTR[↓ MTTR]
-    Link3 --> Adoption[↑ Feature Adoption]
-
-    style Pillars fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px
-    style Users fill:#e3f2fd
-    style MTTR fill:#fff3e0
-    style Adoption fill:#f3e5f5
+    style Drop fill:#550000,stroke:#f00
 ```
 
+Encryption worked. Network assumptions did not.
+
+**Debugging with Observability (The Correct Way)**
+Cilium observability exposes:
+
+- where the packet was processed last
+- which decision was taken
+- why that decision occurred
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    Obs[Observability Event] --> Dec[Decision: Drop]
+    Dec --> Reason[Reason: Policy Denied]
+    Reason --> ID[Source ID: 400]
+    ID --> Map[Policy Map Lookup]
+    Map --> Fix[Fix Policy]
+```
+
+No packet capture. No YAML guessing. No restarts.
+
+**Why Logs Are a Dead End**
+Application logs can only report:
+
+- what the application observed
+
+They cannot report:
+
+- packets dropped before socket creation
+- kernel-level decisions
+- policy verdicts
+
+In Cilium, logs are downstream effects, not root causes.
+
+**The Operator Debugging Playbook**
+Correct reasoning order:
+
+1. Did the packet enter the datapath?
+2. Which execution stage handled it last?
+3. What identity was involved?
+4. What decision was made?
+5. Why was that decision valid?
+
+Only then:
+
+- adjust policy
+- tune performance
+- modify configuration
+
+**Why This Is the Final Pillar**
+This pillar depends on:
+
+- Identity (who)
+- Datapath (where)
+- Policy (why)
+- Observability (how we know)
+- Performance (how fast)
+- Scalability (how churn amplifies issues)
+
+Without the previous pillars, failures look chaotic. With them, failures become mechanical and explainable.
+
+**Final Outcome of the 8 Pillars Framework**
+After all pillars, the reader should:
+
+- stop guessing
+- stop debugging at the wrong layer
+- reason directly from execution truth
+
+Cilium does not hide complexity. It teaches operators how to think at the right layer.
+
+**Closing Statement**
+The 8 Pillars framework is not documentation about features. It is documentation about how the system behaves when it matters.
+Once learned, failures stop being mysterious. They become traceable, bounded, and solvable.
+
 ---
 
-# Conclusion
+## 5. Documentation Design and Explanation Approach
 
-This mentorship proposal represents a **fundamental shift** in how Cilium's architecture is documented. By creating these 8 pillar pages, I aim to bridge the gap between "how to install" and "how it actually works"—empowering operators to reason about their systems with confidence.
+This section defines how the Pillar Pages will be written, not which features they describe.
 
-## Why This Matters
+The core objective of this documentation is to build correct mental models for readers operating Cilium in real systems. Ciliumâ€™s complexity does not come from the number of features it provides. It emerges from kernel-level execution paths where multiple concerns intersect invisibly.
 
-Kubernetes networking is moving toward eBPF-based datapaths. Cilium leads this transition. But adoption is constrained not by technology, but by **knowledge**. Operators avoid advanced features (Cluster Mesh, WireGuard encryption, L7 policies) because they lack the mental models to debug them when things go wrong.
+This documentation approach is explicitly designed to make that invisible execution layer:
 
-These pillars solve that problem.
+- observable
+- explainable
+- predictable
 
-## What Makes This Different
+The result is documentation that teaches readers how to reason, not what to memorize.
 
-This is not a rewrite of existing docs. This is:
+### 5.1 Explaining Cilium Through Packet-Flow Reasoning
 
-- **Architecture-first**: Explain the "why" before the "how"
-- **Failure-oriented**: Start with what breaks, then explain the fix
-- **Diagram-heavy**: Visual learning > text walls
-- **Production-tested**: Examples from real operational scenarios
+All explanations in this project are grounded in packet flow, not configuration syntax.
 
-## Commitment
+Most existing documentation follows this direction:
+**Configuration â†’ Feature â†’ Behavior**
 
-I have spent the last year preparing for this. I have:
+This project intentionally inverts that model.
 
-- Analyzed 500+ Cilium docs pages
-- Built a lab environment with 3-cluster mesh
-- Debugged real eBPF programs
-- Prototyped 70+ architectural diagrams
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    subgraph Traditional [Old Model]
+        T1[Configuration] --> T2[Feature Check] --> T3[Behavior (Implicit)]
+    end
 
-I am ready to execute.
+    subgraph Proposed [New Model]
+        P1[Packet Arrival] --> P2[Execution Path] --> P3[Configuration Validation]
+    end
+
+    style Traditional stroke-dasharray: 5 5
+    style Proposed stroke-width:4px
+```
+
+Each explanation begins with a single foundational question:
+**What happens to the packet?**
+
+From that point onward, the documentation consistently answers:
+
+- where the packet enters the node
+- which kernel hook processes it
+- what decision is made at that hook
+- how that decision affects the next stage
+- where the packet exits or is dropped
+
+Features are never explained in isolation. They are explained as moments in a packetâ€™s lifecycle.
+
+**Feature Explanation by Execution, Not Syntax**
+For example, instead of explaining a network policy as a YAML object, the documentation explains:
+
+- how a packet is classified
+- how identity is attached
+- how a policy map is consulted
+- how a verdict is enforced in the datapath
+
+This allows readers to predict behavior without memorizing fields or flags.
+
+### 5.2 Consistency and Structural Discipline Across All Pillars
+
+Large documentation sets fail when they become inconsistent.
+This project enforces strict structural discipline so that every pillar is read the same way, reasoned about the same way, and debugged the same way.
+
+**Consistent Concept Ordering**
+Every pillar follows the same internal explanation sequence:
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph LR
+    P[Pillar] --> A[Confusion]
+    A --> B[Concept]
+    B --> C[Execution]
+    C --> D[Boundary]
+    D --> E[Failure]
+    E --> F[Observability]
+```
+
+Once a reader understands how to read one pillar, they can apply the same reasoning pattern to all others.
+
+**Stable Vocabulary and Terminology**
+Key terms are defined once and reused consistently.
+Examples include:
+
+- identity
+- endpoint
+- datapath
+- enforcement
+- hook
+- verdict
+- propagation
+
+The documentation intentionally avoids synonyms, even when they appear stylistically nicer.
+Consistency is prioritized over variation because mental models depend on repetition, not novelty.
+
+**Explicit Scope Boundaries**
+Every explanation clearly states:
+
+- which layer is being discussed
+- which layers are intentionally excluded
+- which assumptions are being made
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    K8s[Kubernetes: Defines Intent]
+    Cilium[Cilium: Enforces Rules]
+    Kernel[Linux Kernel: Moves Packets]
+
+    K8s -- "Intent" --> Cilium
+    Cilium -- "eBPF Bytecode" --> Kernel
+
+    style Kernel fill:#330000,stroke:#f00
+```
+
+This prevents a common failure mode where readers attribute kernel behavior to Kubernetes objects, or vice versa.
+
+### 5.3 Stepwise Decomposition of Kernel and Networking Behavior
+
+Kernel execution is often dismissed as â€œtoo complexâ€.
+This project treats kernel behavior as explainable engineering, not magic.
+
+**Stepwise Decomposition Model**
+Every kernel-related explanation is decomposed into explicit steps.
+Instead of saying:
+_â€œCilium enforces policyâ€_
+
+The documentation explains:
+
+- which hook is triggered
+- what data is available at that point
+- what lookup or computation occurs
+- what verdict is returned
+- how execution continues
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    Step1[1. Hook Triggered] --> Step2[2. Context Loaded]
+    Step2 --> Step3[3. Map Lookup]
+    Step3 --> Step4[4. Verdict Calculated]
+    Step4 --> Step5[5. Packet Modified/Dropped]
+```
+
+Each step answers:
+
+- why it exists
+- what would break if it behaved differently
+
+**Control Plane vs Data Plane Separation**
+The documentation strictly separates:
+
+- **control-plane intent:** what the system is configured to do
+- **data-plane execution:** what actually happens to packets
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart TD
+    subgraph CP [Control Plane]
+        API[K8s API]
+        Agent[Cilium Agent]
+    end
+
+    subgraph DP [Data Plane (Kernel)]
+        Map[(BPF Maps)]
+        Prog[[eBPF Progs]]
+    end
+
+    Agent -- "Async Update" --> Map
+    Agent -- "Load" --> Prog
+    Prog -.-> Map
+```
+
+Readers are shown explicitly:
+
+- when Kubernetes stops influencing behavior
+- when Cilium takes over
+- when decisions become purely packet-driven
+
+This prevents debugging the wrong layer.
+
+**Progressive Depth Without Abstraction Skipping**
+Explanations are layered, not flattened.
+Each topic progresses through increasing depth:
+
+1. **Conceptual:** What is the intent?
+2. **Logical:** How does it work?
+3. **Physical:** Where does it run?
+
+Readers can stop at any level without losing correctness.
+This avoids:
+
+- shallow explanations that hide behavior
+- deep explanations that assume kernel expertise
+
+**Documentation Flow Discipline**
+To avoid fragmentation, this project enforces strict flow rules:
+
+- no section introduces a concept that is not explained later
+- no pillar depends on undocumented assumptions
+- no diagram exists without a narrative explanation
+
+Diagrams are used only when they add reasoning value, never as decoration.
+Each diagram maps to a specific step in the explanation.
+
+**Outcome of This Documentation Approach**
+By applying this design consistently:
+
+- readers learn to reason, not memorize
+- operators gain predictive understanding
+- debugging becomes hypothesis-driven
+- advanced features feel safe instead of risky
+
+This approach transforms Cilium documentation from a reference manual into a system explanation guide.
+
+**Final Note**
+This documentation does not aim to reduce complexity. It aims to make complexity navigable.
+Once readers understand how Cilium thinks, the system stops being intimidating and starts being predictable.
+
+### 5.4 Visual Documentation Strategy
+
+Pillar pages are driven by packet execution, not feature descriptions. Every concept is explained using repeating visual primitives.
+
+**CORE VISUAL PRIMITIVES (REUSED EVERYWHERE)**
+
+- **A. Packet Lifecycle Backbone (ALL PILLARS):** One packet, one path, one verdict.
+- **B. Control Plane vs Datapath Boundary:** Used in: Policy Â· Encryption Â· Observability Â· Debugging
+- **C. Decision Point (WHY IT BROKE):** Debugging â‰  magic. Debugging = decision tree.
+
+**PILLAR-WISE VISUALS (NO NEW STYLES)**
+
+- **Pillar 1 â€“ Identity:** IP vs Identity, Identity Creation
+- **Pillar 2 â€“ Datapath & Networking:** Tags: fast path, slow path, cached path
+- **Pillar 3 â€“ Policy Enforcement:** Correct Model, Anti-Pattern (REAL WORLD)
+- **Pillar 4 â€“ L7 Visibility (No Sidecar):** Only when required.
+- **Pillar 5 â€“ Observability:** Packets â†’ Flows, Drop Reasons
+- **Pillar 6 â€“ Performance:** Tail latency spikes here
+- **Pillar 7 â€“ Multi-Cluster:** Identity Mesh, Trust Boundary
+- **Pillar 8 â€“ Failure & Debugging:** Debugging Ladder, Wrong vs Right
+
+**PUBLICATION NOTE**
+All figures referenced in this proposal will be created as execution-accurate SVG diagrams, matching the minimal, execution-first visual style shown above, and submitted alongside the documentation in the Cilium repository.
 
 ---
 
-**Thank you for considering this proposal.**
+## 6. Expected Outcomes and Impact
 
-— Dev  
-**GitHub:** [Dev10-sys](https://github.com/Dev10-sys)  
-**Email:** kalpanagola9897@gmail.com
+This project does not add new features to Cilium. Its impact is measured by how operators reason about Cilium at runtime.
+The outcomes below describe observable shifts in understanding, debugging, and production confidence.
+
+### 6.1 Runtime Understanding Shift
+
+**Before (Common State)**
+
+- Operators guess behavior from YAML.
+- "It works but I don't know why."
+
+**After (Post-Pillars)**
+
+- Operators understand:
+  - where packets enter
+  - where decisions happen
+  - why a packet is forwarded or dropped
+- Cilium stops feeling like a black box.
+
+### 6.2 Debugging Effectiveness
+
+**Old Debugging Pattern**
+
+- Change config â†’ Retry â†’ Hope
+
+**New Debugging Pattern**
+
+- Observe decision â†’ Identify stage â†’ Fix root cause
+
+**Result:**
+
+- fewer trial-and-error changes
+- fewer restarts masking problems
+- faster, deterministic debugging
+
+### 6.3 Production Confidence
+
+**Mental model changes from:** _"Cilium is magic"_ **to** _"Cilium is a kernel program."_
+
+Operators can:
+
+- enable advanced features confidently
+- predict behavior during rollouts
+- trust observability during incidents
+
+This directly improves production adoption and stability.
+
+### 6.4 Summary of Impact
+
+- **8 Pillars documented** as execution paths.
+- **System-level reasoning** replaces feature-level memorization.
+- **Debugging becomes mechanical** rather than intuitive.
 
 ---
 
-# Appendix: Supporting Materials
+## 7. Implementation Plan and Timeline
 
-## A. Diagram Standards
+This section outlines how the project will be executed in a structured, reviewable, and maintainer-friendly manner. The focus is on correctness, iteration, and upstream alignment, not on producing large volumes of documentation quickly.
 
-All diagrams follow:
+The work is planned so that:
 
-- **Mermaid.js** for version control compatibility
-- **Color Palette**: Consistent with CNCF branding
-  - Foundation: `#e3f2fd` (blue)
-  - Security: `#fff3e0` (orange)
-  - Operations: `#c8e6c9` (green)
-  - Advanced: `#f3e5f5` (purple)
-  - Errors: `#ffcdd2` (red)
+- each pillar builds on previously explained concepts
+- feedback is incorporated continuously
+- documentation quality improves incrementally
 
-## B. Research Sources
+### 7.1 Execution Philosophy
 
-- Cilium GitHub Issues (2022-2024): ~500 reviewed
-- Slack #cilium channel: ~200 troubleshooting threads
-- eBPF Summit talks: 15+ sessions
-- Linux Plumbers Conference: XDP + tc track
+The project follows three guiding principles:
 
-## C. Lab Setup
+1. **Execution Before Explanation:** Documentation is written only after the actual datapath execution is understood and validated. This avoids speculative or misleading explanations.
+2. **Failure-Driven Structure:** Each pillar is motivated by real failure cases and operator confusion. Explanations trace these failures back to concrete kernel-level decision points.
+3. **Maintainer-Friendly Delivery:** Work is delivered in small, reviewable documentation units aligned with existing Cilium documentation practices, making feedback and merging straightforward.
 
-For validation, I maintain:
+### 7.2 Documentation Development Workflow
 
-- **3-node local cluster** (Kind)
-- **2-cluster mesh** (AWS + GCP)
-- **Traffic generator** (Fortio)
-- **Monitoring stack** (Prometheus + Grafana + Hubble UI)
+Each pillar follows the same internal workflow to ensure consistency.
+This workflow ensures that explanations are execution-accurate and operator-relevant.
+
+### 7.3 Pillar-Wise Execution Plan
+
+Each pillar is treated as a standalone documentation artifact while remaining explicitly connected to others.
+
+### 7.4 12-Week Timeline and Milestones
+
+The timeline is designed to allow deep technical reasoning and iterative improvement, rather than rushed writing.
+
+**Phase-Wise Breakdown**
+
+- **Weeks 1-4:** Core Pillars (Identity, Datapath, Policy)
+- **Weeks 5-8:** Advanced Pillars (L7, Observability, Performance)
+- **Weeks 9-12:** Scale, Debugging, and Final Polish
+
+### 7.5 Weekly View (Condensed)
+
+- **Week 1:** Pillar 1 (Identity) + Review
+- **Week 2:** Pillar 2 (Datapath) + Review
+- **Week 3:** Pillar 3 (Policy) + Review
+- **Week 4:** Integration & Feedback Buffer
+- **Week 5:** Pillar 4 (L7 Visibility) + Review
+- **Week 6:** Pillar 5 (Observability) + Review
+- **Week 7:** Pillar 6 (Performance) + Review
+- **Week 8:** Mid-term Evaluation & Buffer
+- **Week 9:** Pillar 7 (Scalability) + Review
+- **Week 10:** Pillar 8 (Failure Modes) + Review
+- **Week 11:** Cross-Pillar Review & Unification
+- **Week 12:** Final Submission & Sign-off
+
+### 7.6 Deliverables
+
+By the end of the program, the project will deliver:
+
+- Execution-accurate pillar documentation
+- SVG-based diagrams committed alongside docs
+- Reviewable, merge-ready documentation pull requests
+- Cross-linked explanations aligned with Cilium architecture
+
+### 7.7 Review and Feedback Strategy
+
+Feedback is incorporated continuously through:
+
+- early draft reviews
+- mentor feedback on execution accuracy
+- maintainer comments during PR review
+
+This ensures the final documentation reflects how Cilium actually behaves, not just how it is intended to behave.
+
+**Final Note on Execution**
+This plan prioritizes:
+
+- correctness over speed
+- execution understanding over feature listing
+- long-term documentation value over short-term completeness
+
+The result is documentation that operators can trust during real production incidents.
 
 ---
 
-**End of Proposal**
+## 8. About Me
+
+### 8.1 Introduction and Technical Background
+
+I am a Computer Science undergraduate with a strong interest in understanding how systems behave beneath their abstractions. Over time, my focus has shifted from surface-level usage of tools to reasoning about execution paths, failure modes, and system boundaries, particularly in open-source and production environments.
+
+I learn systems best by tracing what actually happens at runtime: how a request, packet, or process moves through layers, where decisions are made, and why failures occur. This mindset naturally pushed me toward infrastructure-level software and open-source projects, where correctness, recovery behavior, and long-term maintainability matter more than quick results.
+
+My interest lies especially in systems that:
+
+- fail in non-obvious ways
+- require careful reasoning rather than configuration trial-and-error
+- demand accurate mental models to debug and operate confidently
+
+Projects like Cilium, Kubernetes, and Linux-based platforms operate in this space and closely match how I think about systems.
+
+### 8.2 How I Reason About Systems
+
+Projects like Cilium, Kubernetes, and Linux-based platforms operate close to execution boundaries, where behavior emerges from real runtime decisions rather than configuration alone. This closely matches how I think about systems.
+
+I approach technical problems using a **behavior-first reasoning model**, instead of a feature-first or configuration-first approach.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph LR
+    Input[Input] --> Process[Black Box] --> Output[Output]
+    Input2[Input] --> Step1[Step 1] --> Step2[Step 2] --> Output2[Output]
+
+    style Process fill:#333,stroke-dasharray: 5 5
+    style Step1 fill:#003300
+    style Step2 fill:#003300
+```
+
+This approach avoids speculative fixes and makes debugging predictable. It also translates naturally into documentation, where explaining why behavior occurs is more valuable than describing what configuration exists.
+
+### 8.3 Relevant Project Experience â€“ SHINRA LABS
+
+**Project:** SHINRA LABS â€“ Data Operations & Annotation Platform
+**Live Deployment:** SHINRA LABS
+**Source Code:** Shinra-Code
+
+SHINRA LABS is a production-oriented data annotation and workflow platform designed to make large-scale dataset preparation observable, controllable, and explainable.
+
+Although the domain differs from cloud-native networking, the system-level problems are closely aligned:
+
+- coordinating multiple execution stages
+- enforcing role boundaries
+- exposing system state clearly
+- avoiding black-box automation
+
+My work involved:
+
+- system architecture and workflow design
+- role-based access control and task routing
+- quality gates and approval flows
+- explaining execution behavior to non-expert users
+
+The core design goal was ensuring users could understand why the system behaved a certain way, not just interact with outcomes.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+graph TD
+    User --> Role{Role Check}
+    Role -- Basic --> View[View Task]
+    Role -- Admin --> Edit[Edit Workflow]
+
+    View --> Log[Audit Log]
+    Edit --> Log
+```
+
+This experience reinforced my belief that clear mental models reduce operational confusion, which directly aligns with the Cilium 8 Pillars documentation goal.
+
+### 8.4 Open Source Contributions (Merged Work)
+
+I have contributed to multiple open-source projects with a focus on correctness, clarity, and behavior under failure. All contributions listed below are merged upstream.
+
+**CHAOSS â€“ wg-data-science**
+**Merged Pull Request:** [PR #169 â€“ Clarify common misinterpretations in contributor sustainability guide](https://github.com/chaoss/wg-data-science/pull/169)
+**Scope:** Documentation clarity
+**Contribution:**
+
+- Added explanations for common misinterpretations of contributor sustainability metrics
+- Improved practical examples without changing metrics or structure
+  **Outcome:** Helped readers reason about short-term fluctuations more accurately without introducing new metrics or assumptions.
+
+**BeagleBoard â€“ bb.org-overlays**
+**Merged Pull Requests:**
+
+- [PR #238â€“ Fix MCP2515 overlay filename in header example](https://github.com/beagleboard/bb.org-overlays/pull/238)
+- [PR #239â€“ Clarify how to obtain config-pin.c before use](https://github.com/beagleboard/bb.org-overlays/pull/239)
+  **Scope:** Documentation correctness
+  **Contribution:**
+- Fixed mismatches between documentation examples and actual build outputs
+- Clarified tool availability assumptions to prevent user confusion
+  **Outcome:** Reduced friction for users working with device tree overlays by aligning documentation with real build behavior.
+
+**Sugar Labs â€“ sugar**
+**Merged Pull Request:** [PR #1030â€“ Handle datastore restart after DBus disconnect](https://github.com/sugarlabs/sugar/pull/1030)
+**Scope:** Runtime failure recovery
+**Contribution:**
+
+- Fixed stale D-Bus proxy usage after datastore restarts
+- Implemented controlled, single-retry recovery
+- Avoided UI changes or unintended behavior changes
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+sequenceDiagram
+    participant App
+    participant DBus
+    participant Datastore
+
+    App->>DBus: Request Data
+    DBus--xDatastore: Connection Lost
+    DBus-->>App: Error Signal
+    App->>App: Wait 500ms
+    App->>DBus: Retry Connection
+    DBus->>Datastore: Reconnect Success
+```
+
+This contribution reflects how I handle failures:
+
+- understand what breaks
+- fix only what is necessary
+- avoid expanding scope unnecessarily
+
+### 8.5 Why I Am a Good Fit for This Project
+
+I believe I am a strong fit for this mentorship because my way of thinking closely matches the goals of the project.
+
+- I prioritize understanding actual execution behavior before writing documentation
+- I treat documentation as a system explanation problem, not a writing task
+- I am comfortable working in small, reviewable units aligned with maintainer expectations
+- I focus on explaining why behavior occurs, which is often missing in complex system documentation
+
+The Cilium 8 Pillars framework aligns naturally with how I already reason about systems: execution-first, behavior-driven, and failure-aware.
+
+Thank you for considering my application. I would be glad to contribute documentation that reflects how Cilium actually behaves at runtime, so operators can reason confidently, debug deterministically, and trust the system in real production conditions.
