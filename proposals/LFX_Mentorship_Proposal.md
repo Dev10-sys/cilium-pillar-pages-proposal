@@ -484,20 +484,20 @@ This numeric identity is the only object the datapath operates on.
 %%{init: {'theme': 'dark'}}%%
 flowchart LR
     direction LR
-    subgraph Meta [Metadata Sources]
-        PL((Pod Labels))
-        NS((Namespace Labels))
-        SL((System Labels))
+    subgraph Meta ["Metadata Sources"]
+        PL(("Pod Labels"))
+        NS(("Namespace Labels"))
+        SL(("System Labels"))
     end
 
-    subgraph Logic [Identity Derivation Logic]
-        Norm[Normalization & Sorting]
-        Hash{SHA-256 Hash}
-        Alloc[Global Identity Allocation]
+    subgraph Logic ["Identity Derivation Logic"]
+        Norm["Normalization & Sorting"]
+        Hash{"SHA-256 Hash"}
+        Alloc["Global Identity Allocation"]
     end
 
-    subgraph Result [Kernel Datapath Object]
-        ID([Numeric Security Identity])
+    subgraph Result ["Kernel Datapath Object"]
+        ID(["Numeric Security Identity"])
     end
 
     PL & NS & SL --> Norm
@@ -672,26 +672,26 @@ Cilium uses XDP selectively and tc for full semantics.
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TD
-    Pack[Packet Arrives on NIC] --> XDP{XDP Hook?}
-    XDP -- Fast Drop --> Drop1[Discard Early]
-    XDP -- Pass --> TC[Traffic Control Ingress]
+    Pack["Packet Arrives on NIC"] --> XDP{"XDP Hook?"}
+    XDP -- Fast Drop --> Drop1["Discard Early"]
+    XDP -- Pass --> TC["Traffic Control Ingress"]
 
-    subgraph Datapath [Cilium eBPF Datapath]
-        TC --> Parse[Header Parsing]
-        Parse --> ID[Source Identity Lookup]
-        ID --> CT{Conntrack?}
-        CT -- Miss --> Pol[Policy Engine Evaluation]
-        CT -- Hit --> Fwd[Forwarding Logic]
-        Pol -- Deny --> Drop2[Drop w/ Reason Code]
-        Pol -- Allow --> UpdateCT[Update Conntrack Table]
+    subgraph Datapath ["Cilium eBPF Datapath"]
+        TC --> Parse["Header Parsing"]
+        Parse --> ID["Source Identity Lookup"]
+        ID --> CT{"Conntrack?"}
+        CT -- Miss --> Pol["Policy Engine Evaluation"]
+        CT -- Hit --> Fwd["Forwarding Logic"]
+        Pol -- Deny --> Drop2["Drop w/ Reason Code"]
+        Pol -- Allow --> UpdateCT["Update Conntrack Table"]
         UpdateCT --> Fwd
     end
 
-    Fwd --> Encap{Encapsulation?}
-    Encap -- Yes --> VXLAN[VXLAN/Geneve Header]
-    Encap -- No --> Egress[TC Egress]
+    Fwd --> Encap{"Encapsulation?"}
+    Encap -- Yes --> VXLAN["VXLAN/Geneve Header"]
+    Encap -- No --> Egress["TC Egress"]
     VXLAN --> Egress
-    Egress --> Net[Network Interface]
+    Egress --> Net["Network Interface"]
 ```
 
 This figure shows the canonical packet flow through the Cilium datapath. Once a verdict is reached, it is final.
@@ -725,9 +725,9 @@ The datapath enforces truth, not abstraction.
 %%{init: {'theme': 'dark'}}%%
 sequenceDiagram
     participant Client
-    participant Service as Service VIP
-    participant Backend as Backend Pod
-    participant Policy as Policy Enforcement
+    participant Service as "Service VIP"
+    participant Backend as "Backend Pod"
+    participant Policy as "Policy Enforcement"
 
     Client->>Service: Send Packet (Dest: Service IP)
     Note over Service: DNAT Translation Happens First
@@ -757,13 +757,13 @@ This keeps steady-state cost low and predictable.
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TD
-    Pack[Packet] --> CT{Conntrack Entry?}
-    CT -- Yes (Hit) --> Fast[Fast Path: No Policy Re-eval]
-    CT -- No (Miss) --> Slow[Slow Path: Full Policy Lookup]
-    Slow --> Verdict{Allow?}
-    Verdict -- Yes --> CreateCT[Create/Update CT Entry]
+    Pack["Packet"] --> CT{"Conntrack Entry?"}
+    CT -- Yes (Hit) --> Fast["Fast Path: No Policy Re-eval"]
+    CT -- No (Miss) --> Slow["Slow Path: Full Policy Lookup"]
+    Slow --> Verdict{"Allow?"}
+    Verdict -- Yes --> CreateCT["Create/Update CT Entry"]
     CreateCT --> Fast
-    Verdict -- No --> Drop[Drop Packet]
+    Verdict -- No --> Drop["Drop Packet"]
 ```
 
 Performance issues often arise when traffic cannot stay on the fast path.
@@ -885,16 +885,16 @@ The datapath never reads YAML. It performs constant-time lookups against precomp
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    subgraph Control[Control Plane]
-        YAML[NetworkPolicy YAML] --> CiliumAgent
+    subgraph Control ["Control Plane"]
+        YAML["NetworkPolicy YAML"] --> CiliumAgent
         CiliumAgent --> MapUpdates
     end
 
-    subgraph Data[Datapath Execution]
-        MapUpdates -.-> Map[(Policy BPF Map)]
-        Packet --> Lookup[Map Lookup]
+    subgraph Data ["Datapath Execution"]
+        MapUpdates -.-> Map[("Policy BPF Map")]
+        Packet --> Lookup["Map Lookup"]
         Map --> Lookup
-        Lookup --> Decision{Allow/Deny}
+        Lookup --> Decision{"Allow/Deny"}
     end
 
     style Control fill:#333,stroke:#666,stroke-dasharray: 5 5
@@ -956,14 +956,14 @@ Policy evaluation follows a strict, invariant order.
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    Start[Packet Context] --> L3[L3 Policy (IP/CIDR)]
-    L3 -- Allow --> L4[L4 Policy (Port/Proto)]
-    L3 -- Deny --> Drop[Drop Packet]
-    L4 -- Allow --> L7{L7 Rules Exist?}
+    Start["Packet Context"] --> L3["L3 Policy (IP/CIDR)"]
+    L3 -- Allow --> L4["L4 Policy (port/proto)"]
+    L3 -- Deny --> Drop["Drop Packet"]
+    L4 -- Allow --> L7{"L7 Rules Exist?"}
     L4 -- Deny --> Drop
-    L7 -- Yes --> Proxy[L7 Proxy Redirect]
-    L7 -- No --> Allow[Allow System]
-    Proxy --> L7Check[L7 Policy (HTTP/DNS)]
+    L7 -- Yes --> Proxy["L7 Proxy Redirect"]
+    L7 -- No --> Allow["Allow System"]
+    Proxy --> L7Check["L7 Policy (HTTP/DNS)"]
     L7Check -- Allow --> Allow
     L7Check -- Deny --> Drop
 ```
@@ -1146,21 +1146,21 @@ This preserves performance and predictability.
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TD
-    Traffic[Traffic Flow] --> L4Pol{L7 Rule Present?}
-    L4Pol -- No --> Kernel[Kernel Fast Path (High Perf)]
-    L4Pol -- Yes --> User[Userspace Proxy (Envoy/DNS)]
+    Traffic["Traffic Flow"] --> L4Pol{"L7 Rule Present?"}
+    L4Pol -- No --> Kernel["Kernel Fast Path (High Perf)"]
+    L4Pol -- Yes --> User["Userspace Proxy (Envoy/DNS)"]
 
-    subgraph KernelSpace [Kernel Space]
+    subgraph KernelSpace ["Kernel Space"]
         Kernel
     end
 
-    subgraph UserSpace [User Space]
+    subgraph UserSpace ["User Space"]
         User
     end
 
-    User --> Verdict{L7 Verdict}
-    Verdict -- Allow --> Reinject[Re-inject to Kernel]
-    Verdict -- Deny --> Drop[Drop]
+    User --> Verdict{"L7 Verdict"}
+    Verdict -- Allow --> Reinject["Re-inject to Kernel"]
+    Verdict -- Deny --> Drop["Drop"]
     Reinject --> Kernel
 ```
 
@@ -1223,19 +1223,19 @@ Only traffic that must be inspected pays the price.
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph LR
-    subgraph LowCost [Low Cost Zone]
-        P1[L3 Checks]
-        P2[L4 Checks]
-        P3[Conntrack]
+    subgraph LowCost ["Low Cost Zone"]
+        P1["L3 Checks"]
+        P2["L4 Checks"]
+        P3["Conntrack"]
     end
 
-    subgraph HighCost [High Cost Zone (Optional)]
-        P4[L7 Parsing]
-        P5[L7 Pattern Matching]
+    subgraph HighCost ["High Cost Zone (Optional)"]
+        P4["L7 Parsing"]
+        P5["L7 Pattern Matching"]
     end
 
-    P3 --> D{Policy Requires L7?}
-    D -- No --> E[Forward]
+    P3 --> D{"Policy Requires L7?"}
+    D -- No --> E["Forward"]
     D -- Yes --> P4
     P4 --> P5
     P5 --> E
@@ -1384,19 +1384,19 @@ This allows operators to reason about intent and outcome without drowning in pac
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    subgraph Packets [Raw Packet Stream]
-        P1[Syn]
-        P2[Ack]
-        P3[Data]
-        P4[Data]
-        P5[Fin]
+    subgraph Packets ["Raw Packet Stream"]
+        P1["Syn"]
+        P2["Ack"]
+        P3["Data"]
+        P4["Data"]
+        P5["Fin"]
     end
 
-    subgraph Flow [Cilium Flow Log]
-        F1[Flow Event: TCP/80 allow]
+    subgraph Flow ["Cilium Flow Log"]
+        F1["Flow Event: TCP/80 allow"]
     end
 
-    P1 & P2 & P3 & P4 & P5 -.-> Agg[Aggregation Logic]
+    P1 & P2 & P3 & P4 & P5 -.-> Agg["Aggregation Logic"]
     Agg --> F1
 ```
 
@@ -1429,7 +1429,7 @@ There is no generic â€œnetwork errorâ€.
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
-pie title Drop Reasons Distribution
+pie title "Drop Reasons Distribution"
     "Policy Denied" : 40
     "Stale Endpoint" : 20
     "Authentication Required" : 15
@@ -1638,10 +1638,10 @@ This keeps per-packet cost stable as clusters grow.
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    Total[Total Packet Cost] --> Base[Base Cost: Parsing]
-    Total --> ID[Identity Lookup: 1 Map Op]
-    Total --> Pol[Policy Eval: 1 Map Op]
-    Total --> Fwd[Forwarding: 1 FIB Op]
+    Total["Total Packet Cost"] --> Base["Base Cost: Parsing"]
+    Total --> ID["Identity Lookup: 1 Map Op"]
+    Total --> Pol["Policy Eval: 1 Map Op"]
+    Total --> Fwd["Forwarding: 1 FIB Op"]
 
     style ID fill:#333399
     style Pol fill:#333399
@@ -1672,7 +1672,7 @@ The system is optimized so:
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
-pie title Execution Path Frequency
+pie title "Execution Path Frequency"
     "Fast Path (Cached)" : 95
     "Slow Path (Setup)" : 5
 ```
@@ -1874,7 +1874,7 @@ This is why Ciliumâ€™s datapath cost does not grow with cluster size.
 %%{init: {'theme': 'dark'}}%%
 xychart-beta
     title "Execution Cost vs Cluster Size"
-    x-axis [10 Nodes, 100 Nodes, 1000 Nodes]
+    x-axis ["10 Nodes", "100 Nodes", "1000 Nodes"]
     y-axis "Per-Packet CPU Cost" 0 --> 100
     line [20, 20, 20]
 ```
@@ -1942,16 +1942,16 @@ Clusters remain independent, but participate in a shared identity universe.
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart LR
-    subgraph C1 [Cluster 1]
-        API1[K8s API]
-        Etcd1[(Etcd)]
-        Agent1[Cilium Agent]
+    subgraph C1 ["Cluster 1"]
+        API1["K8s API"]
+        Etcd1[("Etcd")]
+        Agent1["Cilium Agent"]
     end
 
-    subgraph C2 [Cluster 2]
-        API2[K8s API]
-        Etcd2[(Etcd)]
-        Agent2[Cilium Agent]
+    subgraph C2 ["Cluster 2"]
+        API2["K8s API"]
+        Etcd2[("Etcd")]
+        Agent2["Cilium Agent"]
     end
 
     Agent1 <--> Agent2
@@ -2101,10 +2101,10 @@ Every packet processed by Cilium follows the same execution path. Failures can o
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    Start((Packet Start)) --> NIC[NIC RX]
-    NIC --> XDP[XDP: Drop/Pass]
-    XDP --> TC[TC Ingress: Policy & Route]
-    TC --> App[Application Socket]
+    Start(("Packet Start")) --> NIC["NIC RX"]
+    NIC --> XDP["XDP: Drop/Pass"]
+    XDP --> TC["TC Ingress: Policy & Route"]
+    TC --> App["Application Socket"]
 
     style XDP fill:#550000,stroke:#f00
     style TC fill:#550000,stroke:#f00
@@ -2128,15 +2128,15 @@ _What Actually Happened_
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TD
-    Config[Config: Allow 'frontend']
-    Runtime[Runtime: 'frontend' has ID 100]
-    Packet[Packet Source: ID 200 (unknown)]
-    Policy[Policy Check]
+    Config["Config: Allow 'frontend'"]
+    Runtime["Runtime: 'frontend' has ID 100"]
+    Packet["Packet Source: ID 200 (unknown)"]
+    Policy["Policy Check"]
 
     Config -.-> Runtime
     Runtime --> Policy
     Packet --> Policy
-    Policy -- Mismatch --> Drop[Drop: Identity 200 Denied]
+    Policy -- Mismatch --> Drop["Drop: Identity 200 Denied"]
 
     style Drop fill:#550000,stroke:#f00
 ```
@@ -2159,10 +2159,10 @@ _What Actually Happened_
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 sequenceDiagram
-    participant DNS as K8s DNS
-    participant App as App Pod
+    participant DNS as "K8s DNS"
+    participant App as "App Pod"
     participant Conntrack
-    participant DeadBackend
+    participant DeadBackend as "Dead Backend"
 
     App->>DNS: Resolve Service
     DNS-->>App: Service IP
@@ -2190,16 +2190,16 @@ _What Actually Happened_
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart LR
-    A[Pod A] -->|Request| B[Pod B]
+    A["Pod A"] -->|Request| B["Pod B"]
     B -.->|Response| A
 
-    subgraph Policy
-        Rule1[Ingress @ B: Allow A]
-        Rule2[Egress @ A: Block All]
+    subgraph Policy ["Policy"]
+        Rule1["Ingress @ B: Allow A"]
+        Rule2["Egress @ A: Block All"]
     end
 
-    Rule1 -- Allow --> Packet1[Req Allowed]
-    Rule2 -- Deny --> Packet2[Resp Dropped]
+    Rule1 -- Allow --> Packet1["Req Allowed"]
+    Rule2 -- Deny --> Packet2["Resp Dropped"]
 
     style Packet2 fill:#550000,stroke:#f00
 ```
@@ -2223,7 +2223,7 @@ _What Actually Happened_
 %%{init: {'theme': 'dark'}}%%
 xychart-beta
     title "Latency Spikes During Churn"
-    x-axis [T0, T1 (Deploy), T2 (Recalculate), T3 (Steady)]
+    x-axis ["T0", "T1 (Deploy)", "T2 (Recalculate)", "T3 (Steady)"]
     y-axis "Latency (ms)" 0 --> 50
     line [5, 45, 30, 5]
 ```
@@ -2246,10 +2246,10 @@ _What Actually Happened_
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TD
-    App[App Payload: 1400 bytes] --> Encap[WireGuard Encap]
-    Encap --> Check{Check MTU}
-    Check -- > 1400? --> Drop[Drop: Fragment Needed]
-    Check -- < 1400? --> Send[Send to Network]
+    App["App Payload: 1400 bytes"] --> Encap["WireGuard Encap"]
+    Encap --> Check{"Check MTU"}
+    Check -- "> 1400?" --> Drop["Drop: Fragment Needed"]
+    Check -- "< 1400?" --> Send["Send to Network"]
 
     style Drop fill:#550000,stroke:#f00
 ```
@@ -2266,11 +2266,11 @@ Cilium observability exposes:
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    Obs[Observability Event] --> Dec[Decision: Drop]
-    Dec --> Reason[Reason: Policy Denied]
-    Reason --> ID[Source ID: 400]
-    ID --> Map[Policy Map Lookup]
-    Map --> Fix[Fix Policy]
+    Obs["Observability Event"] --> Dec["Decision: Drop"]
+    Dec --> Reason["Reason: Policy Denied"]
+    Reason --> ID["Source ID: 400"]
+    ID --> Map["Policy Map Lookup"]
+    Map --> Fix["Fix Policy"]
 ```
 
 No packet capture. No YAML guessing. No restarts.
@@ -2356,12 +2356,12 @@ This project intentionally inverts that model.
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    subgraph Traditional [Old Model]
-        T1[Configuration] --> T2[Feature Check] --> T3[Behavior (Implicit)]
+    subgraph Traditional ["Old Model"]
+        T1["Configuration"] --> T2["Feature Check"] --> T3["Behavior (Implicit)"]
     end
 
-    subgraph Proposed [New Model]
-        P1[Packet Arrival] --> P2[Execution Path] --> P3[Configuration Validation]
+    subgraph Proposed ["New Model"]
+        P1["Packet Arrival"] --> P2["Execution Path"] --> P3["Configuration Validation"]
     end
 
     style Traditional stroke-dasharray: 5 5
@@ -2437,9 +2437,9 @@ Every explanation clearly states:
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    K8s[Kubernetes: Defines Intent]
-    Cilium[Cilium: Enforces Rules]
-    Kernel[Linux Kernel: Moves Packets]
+    K8s["Kubernetes: Defines Intent"]
+    Cilium["Cilium: Enforces Rules"]
+    Kernel["Linux Kernel: Moves Packets"]
 
     K8s -- "Intent" --> Cilium
     Cilium -- "eBPF Bytecode" --> Kernel
@@ -2470,10 +2470,10 @@ The documentation explains:
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    Step1[1. Hook Triggered] --> Step2[2. Context Loaded]
-    Step2 --> Step3[3. Map Lookup]
-    Step3 --> Step4[4. Verdict Calculated]
-    Step4 --> Step5[5. Packet Modified/Dropped]
+    Step1["1. Hook Triggered"] --> Step2["2. Context Loaded"]
+    Step2 --> Step3["3. Map Lookup"]
+    Step3 --> Step4["4. Verdict Calculated"]
+    Step4 --> Step5["5. Packet Modified/Dropped"]
 ```
 
 Each step answers:
@@ -2490,14 +2490,14 @@ The documentation strictly separates:
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TD
-    subgraph CP [Control Plane]
-        API[K8s API]
-        Agent[Cilium Agent]
+    subgraph CP ["Control Plane"]
+        API["K8s API"]
+        Agent["Cilium Agent"]
     end
 
-    subgraph DP [Data Plane (Kernel)]
-        Map[(BPF Maps)]
-        Prog[[eBPF Progs]]
+    subgraph DP ["Data Plane (Kernel)"]
+        Map[("BPF Maps")]
+        Prog[["eBPF Progs"]]
     end
 
     Agent -- "Async Update" --> Map
@@ -2740,8 +2740,8 @@ I approach technical problems using a **behavior-first reasoning model**, instea
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph LR
-    Input[Input] --> Process[Black Box] --> Output[Output]
-    Input2[Input] --> Step1[Step 1] --> Step2[Step 2] --> Output2[Output]
+    Input["Input"] --> Process["Black Box"] --> Output["Output"]
+    Input2["Input"] --> Step1["Step 1"] --> Step2["Step 2"] --> Output2["Output"]
 
     style Process fill:#333,stroke-dasharray: 5 5
     style Step1 fill:#003300
@@ -2777,11 +2777,11 @@ The core design goal was ensuring users could understand why the system behaved 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 graph TD
-    User --> Role{Role Check}
-    Role -- Basic --> View[View Task]
-    Role -- Admin --> Edit[Edit Workflow]
+    User --> Role{"Role Check"}
+    Role -- Basic --> View["View Task"]
+    Role -- Admin --> Edit["Edit Workflow"]
 
-    View --> Log[Audit Log]
+    View --> Log["Audit Log"]
     Edit --> Log
 ```
 
