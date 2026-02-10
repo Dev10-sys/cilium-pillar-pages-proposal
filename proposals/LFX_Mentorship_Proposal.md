@@ -2551,6 +2551,218 @@ This approach transforms Cilium documentation from a reference manual into a sys
 This documentation does not aim to reduce complexity. It aims to make complexity navigable.
 Once readers understand how Cilium thinks, the system stops being intimidating and starts being predictable.
 
+#### 5.3.1 Worked Example: Policy Enforcement Decomposition
+
+To demonstrate the decomposition model in practice, consider a simple scenario:
+
+**Scenario:** Pod A (frontend) sends a packet to Pod B (backend). A NetworkPolicy allows this traffic.
+
+**Traditional Explanation (Insufficient):**
+_"The NetworkPolicy allows frontend to reach backend, so the packet is forwarded."_
+
+**Stepwise Decomposition (Complete):**
+
+**Step 1: Packet Enters Node**
+
+- **Where:** Physical NIC receives Ethernet frame
+- **What happens:** Linux network stack processes frame, identifies destination veth interface
+- **Observable state:** `tcpdump` on node shows packet arrival
+- **Cilium involvement:** None yet (this is pure Linux networking)
+
+**Step 2: tc Ingress Hook Triggered**
+
+- **Where:** `tc ingress` hook on destination veth interface
+- **What happens:** Cilium eBPF program (`bpf_lxc`) is invoked
+- **Observable state:** `tc filter show dev lxc123` shows attached eBPF program
+- **Data available:** Full packet headers (L2, L3, L4)
+
+**Step 3: Source Identity Resolution**
+
+- **Where:** Inside eBPF program, before policy check
+- **What happens:** Source IP is looked up in `cilium_ipcache` BPF map
+- **Map structure:** `IP → (Identity, EncryptKey, TunnelEndpoint)`
+- **Observable state:** `cilium map get cilium_ipcache <src_ip>` shows identity
+- **Result:** Source identity = 12345 (label: `app=frontend`)
+
+**Step 4: Destination Endpoint Lookup**
+
+- **Where:** Still in eBPF program
+- **What happens:** Destination IP matched against local endpoint table
+- **Map structure:** `cilium_lxc` maps endpoint ID to metadata
+- **Observable state:** `cilium endpoint list` shows endpoint
+- **Result:** Destination endpoint = 67890 (label: `app=backend`)
+
+**Step 5: Policy Map Consultation**
+
+- **Where:** eBPF program reads policy verdict
+- **What happens:** Lookup in `cilium_policy_<endpoint_id>` map
+- **Map key:** Source identity (12345)
+- **Map value:** Verdict (ALLOW) + metadata (port ranges, L7 proxy flag)
+- **Observable state:** `cilium policy get <endpoint_id>` shows compiled rules
+- **Result:** ALLOW (no proxy required)
+
+**Step 6: Conntrack Entry Creation**
+
+- **Where:** eBPF conntrack map (`cilium_ct4_global`)
+- **What happens:** New conntrack entry created for this flow
+- **Entry contents:** `(src_ip, dst_ip, src_port, dst_port, proto) → (verdict, timestamp, flags)`
+- **Observable state:** `cilium bpf ct list global` shows entry
+- **Purpose:** Subsequent packets in this flow skip policy lookup (fast path)
+
+**Step 7: Packet Forwarded**
+
+- **Where:** eBPF program returns `TC_ACT_OK`
+- **What happens:** Packet continues to container network namespace
+- **Observable state:** `tcpdump` inside Pod B shows packet arrival
+- **Cilium involvement:** Complete (packet now in application space)
+
+**Step 8: Return Path (Implicit)**
+
+- **Where:** Response packet from Pod B to Pod A
+- **What happens:** Conntrack entry matched, policy check skipped
+- **Observable state:** `cilium monitor` shows `CT_REPLY` verdict
+- **Performance:** ~10x faster than initial packet (no map lookups)
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+sequenceDiagram
+    participant NIC as Physical NIC
+    participant TC as tc ingress (eBPF)
+    participant IPCache as cilium_ipcache
+    participant Policy as cilium_policy_*
+    participant CT as cilium_ct4_global
+    participant Pod as Pod B
+
+    NIC->>TC: Packet arrives
+    TC->>IPCache: Lookup src IP
+    IPCache-->>TC: Identity 12345
+    TC->>Policy: Check (12345 → endpoint)
+    Policy-->>TC: ALLOW
+    TC->>CT: Create conntrack entry
+    CT-->>TC: Entry created
+    TC->>Pod: Forward (TC_ACT_OK)
+
+    Note over TC,CT: Subsequent packets<br/>skip policy lookup
+```
+
+**Key Insight:**
+The "simple" act of policy enforcement involves **8 distinct steps** across **4 different BPF maps**. Each step is independently verifiable. Each step can fail independently. Understanding this sequence is what separates guessing from debugging.
+
+#### 5.3.2 Control Plane vs Data Plane Timing Reality
+
+The control plane and data plane operate asynchronously, with eventual consistency. This is not a bug—it is architectural.
+
+**Critical Timing Reality:**
+When a NetworkPolicy is created in Kubernetes:
+
+1. **T+0ms:** API server accepts the object
+2. **T+50ms:** Cilium agent receives watch event
+3. **T+100ms:** Policy compiler generates new BPF map entries
+4. **T+150ms:** BPF maps updated via `bpf_map_update_elem()`
+5. **T+150ms+:** Data plane enforces new policy
+
+**During the 150ms window:** packets are processed using the **old policy state**. This is not a bug. This is eventual consistency by design.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+gantt
+    title Policy Update Timeline
+    dateFormat SSS
+    axisFormat %L ms
+
+    section Control Plane
+    API accepts policy      :000, 10ms
+    Agent receives event    :050, 20ms
+    Policy compilation      :070, 30ms
+
+    section Data Plane
+    Old policy active       :000, 150ms
+    Map update occurs       :crit, 150, 5ms
+    New policy active       :155, 100ms
+
+    section Packet Flow
+    Packet 1 (old policy)   :milestone, 080
+    Packet 2 (old policy)   :milestone, 140
+    Packet 3 (new policy)   :milestone, 160
+```
+
+**Why This Matters:**
+If a packet is dropped during this window, checking the YAML is useless—the data plane hasn't converged yet. The correct debugging approach is to check `cilium monitor` for the actual verdict, not the intended policy.
+
+#### 5.3.3 Progressive Depth: Identity Assignment Example
+
+**Level 1 (Conceptual):**
+_"Cilium assigns identities to pods based on their labels."_
+
+**Level 2 (Logical):**
+_"The Cilium agent watches pod creation events, extracts security-relevant labels, hashes them to generate a numeric identity, and stores the mapping in a cluster-wide identity allocator (typically etcd or CRDs)."_
+
+**Level 3 (Physical):**
+_"When a pod is created:_
+
+1. _kubelet calls the CNI plugin (`cilium-cni`)_
+2. _CNI plugin sends gRPC request to local Cilium agent_
+3. _Agent queries K8s API for pod labels_
+4. _Agent computes SHA256 hash of sorted label set_
+5. _Agent performs compare-and-swap in etcd at key `/cilium/state/identities/v1/<hash>`_
+6. _If identity exists, reuse numeric ID; else allocate new ID from range_
+7. _Agent writes `(pod_ip → identity)` to `cilium_ipcache` BPF map_
+8. _eBPF datapath can now resolve pod IP to identity in O(1) time"_
+
+Readers can stop at any level without losing correctness.
+
+#### 5.3.4 Concrete Execution Traces
+
+To make kernel behavior tangible, the documentation includes **real execution traces** showing the exact sequence of function calls, map lookups, and verdicts.
+
+**Example: Tracing a Dropped Packet**
+
+**Scenario:** Pod A tries to reach Pod B, but traffic is denied by policy.
+
+**Observable Trace (from `cilium monitor -v`):**
+
+```
+xx drop (Policy denied) flow 0x12a3f8b1 to endpoint 1234, identity 5678->1234: 10.0.1.5:45678 -> 10.0.2.10:8080 tcp SYN
+```
+
+**Decomposed Execution:**
+
+| Step | Location                       | Action                  | Map/Data                   | Result                                    |
+| ---- | ------------------------------ | ----------------------- | -------------------------- | ----------------------------------------- |
+| 1    | `bpf_lxc` entry                | Extract packet headers  | `skb->data`                | `src=10.0.1.5, dst=10.0.2.10, dport=8080` |
+| 2    | `lookup_ip4_remote_endpoint()` | Resolve source identity | `cilium_ipcache[10.0.1.5]` | `identity=5678`                           |
+| 3    | `policy_can_access()`          | Check policy verdict    | `cilium_policy_1234[5678]` | **NOT FOUND**                             |
+| 4    | `send_drop_notify()`           | Emit drop event         | `cilium_events`            | Event queued                              |
+| 5    | Return                         | Drop packet             | —                          | `TC_ACT_SHOT`                             |
+
+**Why This Matters:**
+Without this trace, operators see "packet dropped" and guess at YAML. With this trace, they know:
+
+- Policy lookup succeeded (no error)
+- Identity 5678 is not in the allowlist for endpoint 1234
+- The fix is to add identity 5678 to the policy, not to restart pods
+
+#### 5.3.5 The Goal: Complexity is Navigable, Not Reducible
+
+This documentation does not aim to reduce complexity. It aims to make complexity navigable.
+
+Cilium operates at the intersection of:
+
+- Linux kernel networking
+- eBPF execution model
+- Kubernetes control plane
+- Distributed systems consistency
+
+This intersection is inherently complex. Pretending otherwise would be dishonest.
+
+Instead, this documentation provides:
+
+- **Clear boundaries** (where does Kubernetes end and eBPF begin?)
+- **Explicit sequences** (what happens first, second, third?)
+- **Observable checkpoints** (how do I verify each step occurred?)
+
+**The goal is not to make Cilium simple. The goal is to make Cilium understandable.**
+
 ### 5.4 Visual Documentation Strategy
 
 Pillar pages are driven by packet execution, not feature descriptions. Every concept is explained using repeating visual primitives.
